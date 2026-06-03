@@ -1,0 +1,78 @@
+.feed {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 900px;
+}
+
+.feed-name {
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.post {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.source {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--theme-fg-64);
+    font-weight: 500;
+}
+
+.post .source img {
+    border-radius: 50%;
+    width: 16px;
+}
+
+.post-image {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+    color: var(--theme-fg-64) !important;
+}
+
+.author-time {
+    display: flex;
+    justify-content: space-between;
+}
+
+.reload {
+    cursor: pointer;
+}
+
+.post-link {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 70px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--theme-fg-64);
+}
+
+.tweet-body {
+    color: var(--theme-fg-64) !important;
+    font-size: 15px;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 8;
+    line-clamp: 8;
+    overflow: hidden;
+}

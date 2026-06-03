@@ -1,0 +1,114 @@
+:root {
+    /* Set dynamically by applyProfileTheme() in script.js */
+    --theme-bg: transparent;
+    --theme-fg: white;
+    --theme-fg-64: rgba(255, 255, 255, 0.64);
+    --theme-fg-5: rgba(255, 255, 255, 0.05);
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    touch-action: manipulation;
+}
+
+body {
+    background: var(--theme-bg);
+    color: var(--theme-fg);
+    margin: 0;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100svh;
+    gap: 32px;
+    touch-action: manipulation;
+}
+
+.material-symbols-rounded {
+    font-size: 20px !important;
+    font-variation-settings: 'FILL' 1;
+}
+
+.overlay {
+    position: relative;
+}
+
+.overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--theme-fg-5);
+    z-index: -1;
+}
+
+.top {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.header-nav-top {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.nav-top-all {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.nav-top {
+    display: flex;
+    padding: 12px;
+    border-radius: 9999px;
+    overflow: hidden;
+    gap: 20px;
+    cursor: pointer;
+}
+
+h1 {
+    font-family: 'bricolage grotesque', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 40px;
+    margin: 0;
+}
+
+h2 {
+    font-family: 'bricolage grotesque', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    margin: 0;
+}
+
+p {
+    margin: 0;
+    color: var(--theme-fg-64);
+    font-size: 14px;
+}
+
+.header-top-info {
+    display: flex;
+    flex-direction: column;
+}
+
+
+hr {
+    border: none;
+    height: 1px;
+    background: var(--theme-fg);
+    opacity: 0.1;
+    width: 100%;
+    margin: 0;
+}
