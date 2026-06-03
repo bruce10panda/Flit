@@ -15,14 +15,9 @@ document.querySelectorAll('.source-header').forEach(header => {
     });
 });
 
-function addFeedToStorage(feedUrl) {
-    const spaceIndex = parseInt(localStorage.getItem('activeSpaceIndex') || '0', 10);
-    const key = `extraFeeds_${spaceIndex}`;
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    if (!existing.includes(feedUrl)) {
-        existing.push(feedUrl);
-        localStorage.setItem(key, JSON.stringify(existing));
-    }
+async function addFeedToStorage(feedUrl) {
+    const spaceIndex = await window.FlitStorage.getActiveSpaceIndex();
+    await window.FlitStorage.addExtraFeed(spaceIndex, feedUrl);
 }
 
 function showError(input) {
@@ -42,12 +37,12 @@ const bskySection = sections[1];
 // ── RSS ────────────────────────────────────────────────────────────────────
 
 const rssInput = rssSection?.querySelector('.source-input');
-const rssBtn   = rssSection?.querySelector('.source-input-row .material-symbols-rounded');
+const rssBtn   = rssSection?.querySelector('.source-add-btn');
 
-function submitRss() {
+async function submitRss() {
     const url = rssInput.value.trim();
     if (!url.match(/^https?:\/\/.+/)) { showError(rssInput); return; }
-    addFeedToStorage(url);
+    await addFeedToStorage(url);
     showSuccess(rssSection.querySelector('.source-input-row'));
 }
 
@@ -57,14 +52,14 @@ rssInput?.addEventListener('keydown', e => { if (e.key === 'Enter') submitRss();
 // ── Bluesky ────────────────────────────────────────────────────────────────
 
 const bskyInput = bskySection?.querySelector('.source-input');
-const bskyBtn   = bskySection?.querySelector('.source-input-row .material-symbols-rounded');
+const bskyBtn   = bskySection?.querySelector('.source-add-btn');
 
-function submitBsky() {
+async function submitBsky() {
     let handle = bskyInput.value.trim();
     if (!handle) { showError(bskyInput); return; }
     if (!handle.startsWith('@')) handle = '@' + handle;
     if (!handle.slice(1).includes('.')) { showError(bskyInput); return; }
-    addFeedToStorage(handle);
+    await addFeedToStorage(handle);
     showSuccess(bskySection.querySelector('.source-input-row'));
 }
 

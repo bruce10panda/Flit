@@ -38,20 +38,26 @@ const applyProfileTheme = (theme) => {
     root.style.setProperty('--link-underline', `rgba(${r}, ${g}, ${b}, 0.3)`);
 };
 
-// Fetches profile.json, applies the first space's theme, and returns the
-// full profile so callers can read feeds, preferences, etc.
+// Fetches profile.json, merges saved user data, applies the active space's
+// theme, and returns the full profile so callers can read feeds, preferences, etc.
 async function loadAndApplyTheme() {
     try {
         const res = await fetch('profile.json');
         if (!res.ok) throw new Error('profile.json not found');
         const profile = await res.json();
-        const activeIndex = parseInt(localStorage.getItem('activeSpaceIndex') || '0', 10);
+        const userData = await window.FlitStorage.getUserData();
+        const activeIndex = userData.activeSpaceIndex || 0;
 
-        // Merge user-added feeds stored in localStorage
+        // Merge user-added feeds per space
         profile.spaces?.forEach((space, i) => {
-            const extra = JSON.parse(localStorage.getItem(`extraFeeds_${i}`) || '[]');
+            const extra = userData.spaceOverrides?.[i]?.extraFeeds || [];
             if (extra.length) space.feeds = [...(space.feeds || []), ...extra];
         });
+
+        // Append user-created spaces
+        if (userData.customSpaces?.length) {
+            profile.spaces = [...(profile.spaces || []), ...userData.customSpaces];
+        }
 
         const activeSpace = profile.spaces?.[activeIndex] || profile.spaces?.[0];
         if (activeSpace?.theme) applyProfileTheme(activeSpace.theme);

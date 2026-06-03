@@ -169,10 +169,30 @@ btnDark.addEventListener('click', () => {
     update();
 });
 
-// ── Init ───────────────────────────────────────────────────────────────────
+// ── Create button ─────────────────────────────────────────────────────────
 
-function initFromProfile(profile) {
-    const activeIndex = parseInt(localStorage.getItem('activeSpaceIndex') || '0', 10);
+document.getElementById('create-btn')?.addEventListener('click', async () => {
+    const nameInput = document.querySelector('.ns-input');
+    const name = nameInput?.value.trim();
+    if (!name) {
+        nameInput?.classList.add('error');
+        nameInput?.addEventListener('animationend', () => nameInput.classList.remove('error'), { once: true });
+        return;
+    }
+    const { s, l } = getColorValues();
+    await window.FlitStorage.addCustomSpace({
+        name,
+        emoji: '🌐',
+        theme: { bg: hslToHex(hue, s, l), fg: computeFg(hue, s, l) },
+        feeds: [],
+    });
+    window.location.href = 'sidebar.html';
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────
+
+async function initFromProfile(profile) {
+    const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
     const bg = profile?.spaces?.[activeIndex]?.theme?.bg;
 
     if (bg) {

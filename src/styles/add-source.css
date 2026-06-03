@@ -125,11 +125,22 @@
     transition: outline 0.2s ease;
 }
 
-.source-input-row .material-symbols-rounded {
-    cursor: pointer;
+.source-add-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 59px;
+    background: var(--theme-fg);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    cursor: pointer;
+    color: var(--theme-bg);
+    padding: 0;
+    transition: opacity 0.2s ease;
 }
 
-.source-input-row.success .material-symbols-rounded {
+.source-input-row.success .source-add-btn {
     opacity: 0.4;
 }

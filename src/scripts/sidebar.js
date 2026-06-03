@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
     if (!profile) return;
 
-    const activeIndex = parseInt(localStorage.getItem('activeSpaceIndex') || '0', 10);
+    const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
     const list = document.querySelector('#spaces-list');
 
     profile.spaces.forEach((space, i) => {
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         item.innerHTML = `<p>${space.emoji || ''}</p><p>${space.name}</p>`;
         if (i === activeIndex) item.style.opacity = '1';
 
-        item.addEventListener('click', () => {
-            localStorage.setItem('activeSpaceIndex', i);
+        item.addEventListener('click', async () => {
+            await window.FlitStorage.setActiveSpaceIndex(i);
             window.location.href = 'index.html';
         });
 
