@@ -21,7 +21,7 @@ async function loadBrowser() {
 
     document.getElementById('browser-open-external').onclick = () => {
         if (window.__TAURI__) {
-            window.__TAURI__.shell.open(url);
+            window.__TAURI__.opener.openUrl(url);
         } else {
             window.open(url, '_blank');
         }

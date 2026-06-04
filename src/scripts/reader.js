@@ -58,7 +58,13 @@ function createPostElement(postData) {
 
     if (postData.isBluesky) {
         post.classList.add('twitter-post');
-        post.onclick = () => window.open(postData.link, '_blank');
+        post.onclick = () => {
+            if (window.__TAURI__) {
+                window.__TAURI__.opener.openUrl(postData.link);
+            } else {
+                window.open(postData.link, '_blank');
+            }
+        };
 
         post.innerHTML = `
             <div class="source">
@@ -66,11 +72,26 @@ function createPostElement(postData) {
                 <p class="source-name">${postData.feedTitle}</p>
             </div>
             <p class="tweet-body">${postData.title}</p>
-            ${postData.externalLink ? `<a class="post-link overlay" href="${postData.externalLink}" target="_blank" onclick="event.stopPropagation()"><p>link</p></a>` : ''}
+            ${postData.externalLink ? `<a class="post-link overlay" href="${postData.externalLink}"><p>link</p></a>` : ''}
             <div class="author-time">
                 <p class="time">${getTimeAgo(postData.date)}</p>
             </div>
         `;
+
+        if (postData.externalLink) {
+            const linkEl = post.querySelector('.post-link');
+            if (linkEl) {
+                linkEl.onclick = (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (window.__TAURI__) {
+                        window.__TAURI__.opener.openUrl(postData.externalLink);
+                    } else {
+                        window.open(postData.externalLink, '_blank');
+                    }
+                };
+            }
+        }
     } else {
         post.onclick = () => {
             if (openInReader) {

@@ -165,7 +165,7 @@ async function loadArticle() {
                 if (btnText) btnText.textContent = `Open on ${domain}`;
                 actionBtn.onclick = () => {
                     if (window.__TAURI__) {
-                        window.__TAURI__.shell.open(articleUrl);
+                        window.__TAURI__.opener.openUrl(articleUrl);
                     } else {
                         window.open(articleUrl, '_blank');
                     }
@@ -223,6 +223,18 @@ async function loadArticle() {
             contentDiv.className = 'article-content';
             contentDiv.innerHTML = tempDiv.innerHTML;
             postContainer.appendChild(contentDiv);
+
+            contentDiv.addEventListener('click', (e) => {
+                const link = e.target.closest('a[href]');
+                if (!link) return;
+                e.preventDefault();
+                const href = link.href;
+                if (window.__TAURI__) {
+                    window.__TAURI__.opener.openUrl(href);
+                } else {
+                    window.open(href, '_blank');
+                }
+            });
 
             window.processArticleContent?.(contentDiv);
         }
