@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 6px;
     max-width: 900px;
+    width: 100%;
 }
 
 .feed-name {
