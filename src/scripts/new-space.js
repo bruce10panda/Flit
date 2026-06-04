@@ -1,5 +1,15 @@
+const editIndex = new URLSearchParams(location.search).get('edit');
+const isEditMode = editIndex !== null;
+
 document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
+
+    if (isEditMode) {
+        document.getElementById('page-title').textContent = 'Edit a Space';
+        document.getElementById('create-btn-icon').textContent = 'check';
+        document.getElementById('create-btn-label').textContent = 'Save Changes';
+    }
+
     await init(profile);
 });
 
@@ -154,7 +164,7 @@ btnDark.addEventListener('click', () => {
     update();
 });
 
-// ── Create button ─────────────────────────────────────────────────────────
+// ── Create / Save button ──────────────────────────────────────────────────
 
 document.getElementById('create-btn')?.addEventListener('click', async () => {
     const nameInput = document.querySelector('.ns-input');
@@ -164,21 +174,49 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
         nameInput?.addEventListener('animationend', () => nameInput.classList.remove('error'), { once: true });
         return;
     }
+
     const { s, l } = getColorValues();
-    await window.FlitStorage.addCustomSpace({
-        name,
-        emoji: '🌐',
-        theme: { bg: hslToHex(hue, s, l), fg: computeFg(hue, s, l) },
-        feeds: [],
-    });
-    window.location.href = 'sidebar.html';
+    const theme = { bg: hslToHex(hue, s, l), fg: computeFg(hue, s, l) };
+
+    if (isEditMode) {
+        const idx = parseInt(editIndex, 10);
+        const baseRes = await fetch('profile.json');
+        const baseProfile = await baseRes.json();
+        const baseCount = baseProfile.spaces?.length || 0;
+
+        if (idx < baseCount) {
+            await window.FlitStorage.updateSpaceOverride(idx, { theme });
+        } else {
+            await window.FlitStorage.updateCustomSpace(idx - baseCount, { name, theme });
+        }
+        history.back();
+    } else {
+        await window.FlitStorage.addCustomSpace({
+            name,
+            emoji: '🌐',
+            theme,
+            feeds: [],
+        });
+        window.location.href = 'sidebar.html';
+    }
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────
 
 async function init(profile) {
-    const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
-    const bg = profile?.spaces?.[activeIndex]?.theme?.bg;
+    let bg;
+
+    if (isEditMode) {
+        const idx = parseInt(editIndex, 10);
+        const space = profile?.spaces?.[idx];
+        if (space) {
+            document.querySelector('.ns-input').value = space.name || '';
+            bg = space.theme?.bg;
+        }
+    } else {
+        const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
+        bg = profile?.spaces?.[activeIndex]?.theme?.bg;
+    }
 
     if (bg) {
         const { h, s, l } = hexToHsl(bg);

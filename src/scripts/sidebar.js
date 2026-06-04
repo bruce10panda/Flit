@@ -2,6 +2,11 @@ document.querySelector('#close-sidebar-btn')?.addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
+document.querySelector('#preferences-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    window.location.href = 'preferences.html';
+});
+
 const addBtn = document.querySelector('#add-btn');
 
 addBtn?.addEventListener('click', (e) => {

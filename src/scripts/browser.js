@@ -11,6 +11,11 @@ async function fetchPageHTML(url) {
     }
 }
 
+function showIframe(iframe, loading) {
+    iframe.classList.add('loaded');
+    loading.style.display = 'none';
+}
+
 async function loadBrowser() {
     await loadAndApplyTheme();
 
@@ -27,12 +32,26 @@ async function loadBrowser() {
         }
     };
 
+    document.getElementById('browser-share').onclick = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({ url });
+            } catch (e) {
+                if (e.name !== 'AbortError') console.error('Share failed:', e);
+            }
+        } else if (window.__TAURI__) {
+            window.__TAURI__.opener.openUrl(url);
+        }
+    };
+
     const iframe = document.getElementById('browser-iframe');
     const loading = document.getElementById('browser-loading');
 
+    let revealed = false;
     iframe.addEventListener('load', () => {
-        iframe.classList.add('loaded');
-        loading.style.display = 'none';
+        if (revealed) return;
+        revealed = true;
+        showIframe(iframe, loading);
     });
 
     const html = await fetchPageHTML(url);
@@ -42,6 +61,16 @@ async function loadBrowser() {
         let injected = html.replace(/(<head[^>]*>)/i, `$1${baseTag}${SCROLLBAR_HIDE_CSS}`);
         if (injected === html) injected = baseTag + SCROLLBAR_HIDE_CSS + html;
         iframe.srcdoc = injected;
+
+        // Fallback: if load event doesn't fire within 8s, show iframe anyway
+        setTimeout(() => {
+            if (!revealed) {
+                revealed = true;
+                showIframe(iframe, loading);
+            }
+        }, 8000);
+    } else {
+        showIframe(iframe, loading);
     }
 }
 

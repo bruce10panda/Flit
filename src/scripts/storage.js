@@ -6,6 +6,7 @@ const DEFAULT_DATA = {
     activeSpaceIndex: 0,
     spaceOverrides: [],  // indexed by profile.json space index: { extraFeeds[], theme }
     customSpaces: [],    // user-created spaces: { name, emoji, theme, feeds[] }
+    preferences: {},     // user preference overrides: { open_in_reader, experimental_reader, … }
 };
 
 let _cache = null;
@@ -81,6 +82,29 @@ async function addCustomSpace(space) {
     await _save();
 }
 
+async function updateSpaceOverride(profileIndex, overrides) {
+    const data = await getUserData();
+    while (data.spaceOverrides.length <= profileIndex) {
+        data.spaceOverrides.push({ extraFeeds: [], theme: null });
+    }
+    data.spaceOverrides[profileIndex] = { ...data.spaceOverrides[profileIndex], ...overrides };
+    await _save();
+}
+
+async function updateCustomSpace(customIndex, space) {
+    const data = await getUserData();
+    if (customIndex >= 0 && customIndex < data.customSpaces.length) {
+        data.customSpaces[customIndex] = { ...data.customSpaces[customIndex], ...space };
+        await _save();
+    }
+}
+
+async function updatePreferences(prefs) {
+    const data = await getUserData();
+    data.preferences = { ...data.preferences, ...prefs };
+    await _save();
+}
+
 window.FlitStorage = {
     getUserData,
     getActiveSpaceIndex,
@@ -88,4 +112,7 @@ window.FlitStorage = {
     getExtraFeeds,
     addExtraFeed,
     addCustomSpace,
+    updateSpaceOverride,
+    updateCustomSpace,
+    updatePreferences,
 };

@@ -53,3 +53,7 @@ body {
 .browser-content iframe.loaded {
     opacity: 1;
 }
+
+#browser-actions span {
+    cursor: pointer;
+}

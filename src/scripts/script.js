@@ -48,11 +48,18 @@ async function loadAndApplyTheme() {
         const userData = await window.FlitStorage.getUserData();
         const activeIndex = userData.activeSpaceIndex || 0;
 
-        // Merge user-added feeds per space
+        // Merge user-added feeds and theme overrides per space
         profile.spaces?.forEach((space, i) => {
-            const extra = userData.spaceOverrides?.[i]?.extraFeeds || [];
+            const override = userData.spaceOverrides?.[i] || {};
+            const extra = override.extraFeeds || [];
             if (extra.length) space.feeds = [...(space.feeds || []), ...extra];
+            if (override.theme) space.theme = override.theme;
         });
+
+        // Merge user preference overrides
+        if (userData.preferences && Object.keys(userData.preferences).length) {
+            profile.preferences = { ...profile.preferences, ...userData.preferences };
+        }
 
         // Append user-created spaces
         if (userData.customSpaces?.length) {

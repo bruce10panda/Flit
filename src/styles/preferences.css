@@ -1,0 +1,213 @@
+.pref-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.pref-section-label {
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--theme-fg-64);
+    opacity: 0.5;
+    padding: 0 6px;
+}
+
+/* ── Space list ─────────────────────────────────────────────────────────── */
+
+.pref-spaces {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 6px;
+}
+
+.pref-space {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* ── Space header (clickable row) ───────────────────────────────────────── */
+
+.pref-space-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.pref-space-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.pref-space-emoji {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.pref-space-header-left p {
+    font-size: 16px;
+    color: var(--theme-fg-64);
+}
+
+.pref-chevron {
+    flex-shrink: 0;
+    color: var(--theme-fg-64);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pref-space.open .pref-chevron {
+    transform: rotate(90deg);
+}
+
+/* ── Space body (accordion) ─────────────────────────────────────────────── */
+
+.pref-space-body {
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-top 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pref-space.open .pref-space-body {
+    max-height: 200px;
+    padding-top: 16px;
+}
+
+/* ── Sub-items layout ────────────────────────────────────────────────────── */
+
+.pref-sub-items {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.pref-sub-indicator {
+    width: 20px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.pref-sub-indicator::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--theme-fg);
+    opacity: 0.08;
+    border-radius: 1px;
+}
+
+.pref-sub-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.pref-sub-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 21px;
+    cursor: pointer;
+}
+
+.pref-sub-item p {
+    font-size: 16px;
+    color: var(--theme-fg-64);
+    flex: 1;
+    min-width: 0;
+}
+
+.pref-sub-item .material-symbols-rounded {
+    color: var(--theme-fg-64);
+    flex-shrink: 0;
+}
+
+/* ── Reader settings rows ────────────────────────────────────────────────── */
+
+.pref-reader {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 6px;
+}
+
+.pref-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pref-row > .material-symbols-rounded {
+    color: var(--theme-fg-64);
+    flex-shrink: 0;
+}
+
+.pref-row > p {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+    color: var(--theme-fg-64);
+}
+
+.pref-row-warning {
+    font-size: 18px !important;
+    color: var(--theme-fg-64);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* ── Toggle pill ─────────────────────────────────────────────────────────── */
+
+.pref-toggle {
+    width: 35px;
+    height: 20px;
+    border-radius: 99px;
+    background: var(--theme-fg-5);
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.25s ease;
+}
+
+.pref-toggle.on {
+    background: var(--theme-fg-64);
+}
+
+.pref-toggle-knob {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--theme-fg);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pref-toggle.on .pref-toggle-knob {
+    transform: translateX(15px);
+}
+
