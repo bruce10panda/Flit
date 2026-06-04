@@ -70,7 +70,7 @@ function computeFg(h, s, l) {
     if (l < 50) {
         return hslToHex((h + 30) % 360, Math.min(s * 0.5, 28), 82);
     } else {
-        return hslToHex((h + 210) % 360, Math.min(s * 0.35, 20), 18);
+        return hslToHex((h + 15) % 360, Math.min(s * 0.35, 20), 18);
     }
 }
 
@@ -185,7 +185,7 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
         const baseCount = baseProfile.spaces?.length || 0;
 
         if (idx < baseCount) {
-            await window.FlitStorage.updateSpaceOverride(idx, { theme });
+            await window.FlitStorage.updateSpaceOverride(idx, { name, theme });
         } else {
             await window.FlitStorage.updateCustomSpace(idx - baseCount, { name, theme });
         }

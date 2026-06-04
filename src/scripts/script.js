@@ -54,6 +54,7 @@ async function loadAndApplyTheme() {
             const extra = override.extraFeeds || [];
             if (extra.length) space.feeds = [...(space.feeds || []), ...extra];
             if (override.theme) space.theme = override.theme;
+            if (override.name) space.name = override.name;
         });
 
         // Merge user preference overrides

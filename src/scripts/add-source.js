@@ -17,7 +17,24 @@ document.querySelectorAll('.source-header').forEach(header => {
 
 async function addFeedToStorage(feedUrl) {
     const spaceIndex = await window.FlitStorage.getActiveSpaceIndex();
-    await window.FlitStorage.addExtraFeed(spaceIndex, feedUrl);
+    const baseRes = await fetch('profile.json');
+    const baseProfile = await baseRes.json();
+    const baseCount = baseProfile.spaces?.length || 0;
+
+    if (spaceIndex < baseCount) {
+        await window.FlitStorage.addExtraFeed(spaceIndex, feedUrl);
+    } else {
+        const customIndex = spaceIndex - baseCount;
+        const userData = await window.FlitStorage.getUserData();
+        const space = userData.customSpaces[customIndex];
+        if (space) {
+            const feeds = [...(space.feeds || [])];
+            if (!feeds.includes(feedUrl)) {
+                feeds.push(feedUrl);
+                await window.FlitStorage.updateCustomSpace(customIndex, { feeds });
+            }
+        }
+    }
 }
 
 function showError(input) {
