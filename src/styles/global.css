@@ -1,9 +1,9 @@
 :root {
-    /* Set dynamically by applyProfileTheme() in script.js */
     --theme-bg: transparent;
     --theme-fg: white;
     --theme-fg-64: rgba(255, 255, 255, 0.64);
     --theme-fg-5: rgba(255, 255, 255, 0.05);
+    --link-underline: rgba(255, 255, 255, 0.3);
 
     -webkit-tap-highlight-color: transparent;
 }
@@ -79,14 +79,14 @@ body {
 }
 
 h1 {
-    font-family: 'bricolage grotesque', system-ui, sans-serif;
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
     font-weight: 900;
     font-size: 40px;
     margin: 0;
 }
 
 h2 {
-    font-family: 'bricolage grotesque', system-ui, sans-serif;
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
     font-weight: 900;
     font-size: 20px;
     margin: 0;
@@ -103,7 +103,6 @@ p {
     flex-direction: column;
 }
 
-
 hr {
     border: none;
     height: 1px;
@@ -111,4 +110,22 @@ hr {
     opacity: 0.1;
     width: 100%;
     margin: 0;
+}
+
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 52px;
+    border-radius: 9999px;
+    overflow: hidden;
+    gap: 6px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 900px;
+}
+
+.btn span,
+.btn p {
+    color: var(--theme-fg-64);
 }

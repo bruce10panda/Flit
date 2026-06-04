@@ -9,13 +9,11 @@ const imageBlacklist = [
     'get-it-on-google-play',
     'facebook-icon',
     'twitter-icon',
-    // Author/avatar patterns
     'author', 'avatar', 'headshot', 'profile', 'byline',
     'contributor', 'journalist', 'reporter', 'staff',
     'mugshot', 'bio-img', 'bio-image', 'writer',
 ];
 
-// When matched, everything from this element onward is removed
 const cutoffPhrases = [
     'popular stories', 'recommended for you', 'what do you think',
     'leave a comment', 'sponsored content', 'advertisement',
@@ -40,7 +38,6 @@ const blockedLinkDomains = [
 function normalizeSrc(src) {
     if (!src) return '';
     try {
-        // Strip query strings and extract just the filename for blacklist matching
         const filename = src.split('?')[0].split('/').pop();
         return filename.toLowerCase();
     } catch (e) {
@@ -68,7 +65,6 @@ function isBlockedImage(img) {
 
     if (imageBlacklist.some(term => combined.includes(term))) return true;
 
-    // Small square images are likely avatars/icons
     const w = img.naturalWidth || img.width || 0;
     const h = img.naturalHeight || img.height || 0;
     if (w > 0 && h > 0) {
@@ -76,7 +72,6 @@ function isBlockedImage(img) {
         if (ratio >= 0.8 && ratio <= 1.25 && w <= 120 && h <= 120) return true;
     }
 
-    // Also check parent element for author-related class/id names
     const parent = img.closest('[class],[id]');
     if (parent) {
         const parentCtx = `${parent.className || ''} ${parent.id || ''}`.toLowerCase();
@@ -103,7 +98,6 @@ function matchesCutoff(el) {
     );
 }
 
-// Walks all relevant elements in one pass; skips nodes already removed by a parent.
 function stripBoilerplate(container) {
     const elements = Array.from(
         container.querySelectorAll('p, h1, h2, h3, h4, ul, ol, blockquote, div, section, hr, footer, aside, figure, table')
@@ -130,7 +124,6 @@ async function loadArticle() {
     try {
         const profile = await loadAndApplyTheme();
         experimentalReaderEnabled = profile?.preferences?.experimental_reader || false;
-        console.log("Reader: Experimental Mode is", experimentalReaderEnabled ? "ON" : "OFF");
     } catch (e) {
         console.error("Reader: Profile fetch failed", e);
     }
@@ -181,9 +174,9 @@ async function loadArticle() {
             firstImg.src = savedData.image;
             titleEl.parentNode.insertBefore(firstImg, titleEl);
         }
+    } else {
+        titleEl.textContent = 'Loading...';
     }
-
-    titleEl.textContent = 'Loading content...';
 
     const html = await fetchArticleHTML(articleUrl);
 
@@ -243,8 +236,4 @@ async function loadArticle() {
 
 document.addEventListener('DOMContentLoaded', loadArticle);
 
-const backBtn = document.querySelector('.nav-top.overlay:first-child');
-if (backBtn) {
-    backBtn.style.cursor = 'pointer';
-    backBtn.onclick = () => window.history.back();
-}
+document.getElementById('back-btn')?.addEventListener('click', () => window.history.back());

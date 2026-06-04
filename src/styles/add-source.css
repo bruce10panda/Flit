@@ -44,11 +44,11 @@
     height: 20px;
     flex-shrink: 0;
     background-color: var(--theme-fg-64);
-    -webkit-mask-image: url('../assets/bluesky_icon.svg');
+    -webkit-mask-image: url('../assets/Bluesky_icon.svg');
     -webkit-mask-size: contain;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
-    mask-image: url('../assets/bluesky_icon.svg');
+    mask-image: url('../assets/Bluesky_icon.svg');
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;

@@ -12,12 +12,8 @@
       ]
     }
   ],
-  "settings": {
-    "global_user_id": "user_8829",
-    "language": "en-US"
-  },
   "preferences": {
     "experimental_reader": true,
-    "open_in_reader": false
+    "open_in_reader": true
   }
 }

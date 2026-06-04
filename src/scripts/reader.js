@@ -57,7 +57,7 @@ function createPostElement(postData) {
     post.className = 'post overlay';
 
     if (postData.isBluesky) {
-        post.classList.add('twitter-post');
+        post.classList.add('bsky-post');
         post.onclick = () => {
             if (window.__TAURI__) {
                 window.__TAURI__.opener.openUrl(postData.link);
@@ -71,7 +71,7 @@ function createPostElement(postData) {
                 <img src="${postData.feedImage || 'https://www.google.com/s2/favicons?sz=64&domain=bsky.app'}" alt="Avatar" onerror="this.src='https://www.google.com/s2/favicons?sz=64&domain=bsky.app'">
                 <p class="source-name">${postData.feedTitle}</p>
             </div>
-            <p class="tweet-body">${postData.title}</p>
+            <p class="bsky-body">${postData.title}</p>
             ${postData.externalLink ? `<a class="post-link overlay" href="${postData.externalLink}"><p>link</p></a>` : ''}
             <div class="author-time">
                 <p class="time">${getTimeAgo(postData.date)}</p>
@@ -98,7 +98,7 @@ function createPostElement(postData) {
                 sessionStorage.setItem('currentPostData', JSON.stringify(postData));
                 window.location.href = `article.html?url=${encodeURIComponent(postData.link)}`;
             } else {
-                openBuiltInBrowser(postData.link);
+                window.location.href = `browser.html?url=${encodeURIComponent(postData.link)}`;
             }
         };
 
@@ -149,10 +149,6 @@ function renderPosts() {
     observer.observe(sentinel);
 }
 
-function openBuiltInBrowser(url) {
-    window.location.href = `browser.html?url=${encodeURIComponent(url)}`;
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     if (!feedContainer) return;
 
@@ -162,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         openInReader = profile.preferences?.open_in_reader !== false;
 
-        const activeIndex = parseInt(localStorage.getItem('activeSpaceIndex') || '0', 10);
+        const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
         const activeSpace = profile.spaces[activeIndex] || profile.spaces[0];
         if (activeSpace) {
             document.querySelector('h1').textContent = activeSpace.name;

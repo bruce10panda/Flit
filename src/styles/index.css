@@ -67,7 +67,7 @@
     color: var(--theme-fg-64);
 }
 
-.tweet-body {
+.bsky-body {
     color: var(--theme-fg-64) !important;
     font-size: 15px;
     line-height: 1.55;

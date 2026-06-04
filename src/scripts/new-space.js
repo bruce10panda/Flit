@@ -1,21 +1,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
-    initFromProfile(profile);
+    await init(profile);
 });
 
 document.querySelector('#back-btn')?.addEventListener('click', () => history.back());
 
 // ── State ──────────────────────────────────────────────────────────────────
 
-// mode 'dark'  → lightness 10-28%, sat 35-60%  (always looks like a real dark theme)
-// mode 'light' → lightness 78-92%, sat 12-30%  (always looks like a real light theme)
 let hue  = 236;   // 0-360
 let dotY = 0.4;   // 0 (top/lighter) → 1 (bottom/darker)
 let mode = 'dark';
 
-const canvas  = document.getElementById('color-canvas');
-const ctx     = canvas.getContext('2d');
-const handle  = document.getElementById('color-handle');
+const canvas     = document.getElementById('color-canvas');
+const ctx        = canvas.getContext('2d');
 const btnShuffle = document.getElementById('btn-shuffle');
 const btnLight   = document.getElementById('btn-light');
 const btnDark    = document.getElementById('btn-dark');
@@ -51,7 +48,6 @@ function hexToHsl(hex) {
     return { h: h * 360, s: s * 100, l: l * 100 };
 }
 
-// Get the sat/light at a given dotY for the current mode
 function getColorValues(y = dotY) {
     if (mode === 'dark') {
         return { s: 35 + (1 - y) * 25, l: 10 + (1 - y) * 18 };
@@ -60,7 +56,6 @@ function getColorValues(y = dotY) {
     }
 }
 
-// Auto-generate a complementary fg colour that always looks great
 function computeFg(h, s, l) {
     if (l < 50) {
         return hslToHex((h + 30) % 360, Math.min(s * 0.5, 28), 82);
@@ -76,8 +71,6 @@ function drawCanvas() {
     for (let x = 0; x < W; x++) {
         const h = (x / (W - 1)) * 360;
         const grad = ctx.createLinearGradient(0, 0, 0, H);
-        // top (y=0, dotY=0): lightest/most-saturated within mode
-        // bottom (y=H, dotY=1): darkest/least-saturated within mode
         const top    = getColorValues(0);
         const bottom = getColorValues(1);
         grad.addColorStop(0, `hsl(${h}, ${top.s}%, ${top.l}%)`);
@@ -88,12 +81,6 @@ function drawCanvas() {
 }
 
 // ── UI sync ────────────────────────────────────────────────────────────────
-
-function updateHandle() {
-    const W = canvas.offsetWidth, H = canvas.offsetHeight;
-    handle.style.left = `${(hue / 360) * W}px`;
-    handle.style.top  = `${dotY * H}px`;
-}
 
 function updateButtonStates() {
     btnLight.classList.toggle('active', mode === 'light');
@@ -109,7 +96,6 @@ function applyTheme() {
 }
 
 function update() {
-    updateHandle();
     updateButtonStates();
     applyTheme();
 }
@@ -127,19 +113,18 @@ function readCanvasPoint(e) {
     update();
 }
 
-canvas.addEventListener('mousedown',  e => { dragging = true; handle.classList.add('dragging');    readCanvasPoint(e); });
-canvas.addEventListener('touchstart', e => { dragging = true; handle.classList.add('dragging');    readCanvasPoint(e); }, { passive: true });
+canvas.addEventListener('mousedown',  e => { dragging = true; readCanvasPoint(e); });
+canvas.addEventListener('touchstart', e => { dragging = true; readCanvasPoint(e); }, { passive: true });
 document.addEventListener('mousemove',  e => { if (dragging) readCanvasPoint(e); });
 document.addEventListener('touchmove',  e => { if (dragging) readCanvasPoint(e); }, { passive: true });
-document.addEventListener('mouseup',  () => { dragging = false; handle.classList.remove('dragging'); });
-document.addEventListener('touchend', () => { dragging = false; handle.classList.remove('dragging'); });
+document.addEventListener('mouseup',  () => { dragging = false; });
+document.addEventListener('touchend', () => { dragging = false; });
 
 // ── Buttons ────────────────────────────────────────────────────────────────
 
 btnShuffle.addEventListener('click', () => {
     const startHue = hue;
     let target = Math.round(Math.random() * 360);
-    // take the shortest path around the hue wheel
     let delta = ((target - startHue + 540) % 360) - 180;
     const duration = 350;
     const start = performance.now();
@@ -191,7 +176,7 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
 
 // ── Init ──────────────────────────────────────────────────────────────────
 
-async function initFromProfile(profile) {
+async function init(profile) {
     const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
     const bg = profile?.spaces?.[activeIndex]?.theme?.bg;
 
@@ -199,7 +184,6 @@ async function initFromProfile(profile) {
         const { h, s, l } = hexToHsl(bg);
         hue  = h;
         mode = l < 50 ? 'dark' : 'light';
-        // Map l back to dotY for the current mode
         if (mode === 'dark') {
             dotY = 1 - Math.max(0, Math.min(1, (l - 10) / 18));
         } else {

@@ -24,15 +24,6 @@
     gap: 6px;
 }
 
-.ns-emoji-picker {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    border: 2px dashed var(--theme-fg-64);
-    box-sizing: border-box;
-}
-
 .ns-input-pill {
     flex: 1;
     min-width: 0;
@@ -59,6 +50,19 @@
     color: var(--theme-fg-64);
 }
 
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+.ns-input.error {
+    animation: shake 0.35s ease;
+    color: #e06c6c;
+}
+
 /* ── Theme picker ──────────────────────────────────────────────────────── */
 
 .ns-theme-section {
@@ -76,9 +80,6 @@
     border-radius: 6px;
     overflow: hidden;
     cursor: crosshair;
-}
-
-.ns-canvas-wrapper {
     background: var(--theme-fg-5);
 }
 
@@ -89,7 +90,6 @@
     opacity: 0;
 }
 
-/* Subtle dot-grid overlay matching the Figma design */
 .ns-canvas-wrapper::after {
     content: '';
     position: absolute;
@@ -98,10 +98,6 @@
     background-size: 14px 14px;
     opacity: 0.1;
     pointer-events: none;
-}
-
-.ns-color-handle {
-    display: none;
 }
 
 /* ── Theme control buttons ─────────────────────────────────────────────── */
@@ -136,22 +132,8 @@
     color: var(--theme-bg);
 }
 
-/* ── Create button — matches article.html .btn ─────────────────────────── */
+/* ── Create button ─────────────────────────────────────────────────────── */
 
 .btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 52px;
-    border-radius: 9999px;
-    overflow: hidden;
-    gap: 6px;
-    cursor: pointer;
-    width: 100%;
     margin-top: auto;
-}
-
-.btn span,
-.btn p {
-    color: var(--theme-fg-64);
 }

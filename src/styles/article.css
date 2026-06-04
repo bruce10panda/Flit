@@ -232,19 +232,3 @@ img, video { max-width: 100%; height: auto; }
     text-align: center;
 }
 
-.btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 52px;
-    border-radius: 9999px;
-    overflow: hidden;
-    gap: 6px;
-    cursor: pointer;
-    width: 100%;
-    max-width: 900px;
-}
-
-.btn span {
-    color: var(--theme-fg-64);
-}
