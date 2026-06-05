@@ -15,7 +15,7 @@ function buildSpaceItem(space, spaceIndex) {
                 <div class="pref-sub-indicator"></div>
                 <div class="pref-sub-content">
                     <div class="pref-sub-item" id="edit-theme-${spaceIndex}">
-                        <p>Edit Theme</p>
+                        <p>Edit Space</p>
                         <span class="material-symbols-rounded">chevron_right</span>
                     </div>
                     <div class="pref-sub-item">

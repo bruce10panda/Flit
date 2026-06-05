@@ -26,6 +26,7 @@ const ctx        = canvas.getContext('2d');
 const btnShuffle = document.getElementById('btn-shuffle');
 const btnLight   = document.getElementById('btn-light');
 const btnDark    = document.getElementById('btn-dark');
+const btnMono    = document.getElementById('btn-mono');
 
 // ── Colour math ────────────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ function hexToHsl(hex) {
 }
 
 function getColorValues(y = dotY) {
+    if (mode === 'mono') return { s: 0, l: 90 - y * 82 };
     if (mode === 'dark') {
         return { s: 35 + (1 - y) * 25, l: 10 + (1 - y) * 18 };
     } else {
@@ -67,6 +69,7 @@ function getColorValues(y = dotY) {
 }
 
 function computeFg(h, s, l) {
+    if (mode === 'mono') return l < 50 ? '#d0d0d0' : '#222222';
     if (l < 50) {
         return hslToHex((h + 30) % 360, Math.min(s * 0.5, 28), 82);
     } else {
@@ -78,6 +81,14 @@ function computeFg(h, s, l) {
 
 function drawCanvas() {
     const W = canvas.width, H = canvas.height;
+    if (mode === 'mono') {
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, `hsl(0, 0%, 90%)`);
+        grad.addColorStop(1, `hsl(0, 0%, 8%)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+        return;
+    }
     for (let x = 0; x < W; x++) {
         const h = (x / (W - 1)) * 360;
         const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -95,6 +106,7 @@ function drawCanvas() {
 function updateButtonStates() {
     btnLight.classList.toggle('active', mode === 'light');
     btnDark.classList.toggle('active',  mode === 'dark');
+    btnMono.classList.toggle('active',  mode === 'mono');
 }
 
 function applyTheme() {
@@ -164,7 +176,30 @@ btnDark.addEventListener('click', () => {
     update();
 });
 
+btnMono.addEventListener('click', () => {
+    if (mode === 'mono') return;
+    mode = 'mono';
+    drawCanvas();
+    update();
+});
+
 // ── Create / Save button ──────────────────────────────────────────────────
+
+const emojiInput = document.getElementById('ns-emoji-input');
+
+emojiInput?.addEventListener('input', () => {
+    if (!emojiInput.value) return;
+    try {
+        const first = [...new Intl.Segmenter().segment(emojiInput.value)][0]?.segment || '';
+        emojiInput.value = first;
+    } catch {
+        emojiInput.value = [...emojiInput.value][0] || '';
+    }
+});
+
+function getEmoji() {
+    return emojiInput?.value.trim() || '🌐';
+}
 
 document.getElementById('create-btn')?.addEventListener('click', async () => {
     const nameInput = document.querySelector('.ns-input');
@@ -177,6 +212,7 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
 
     const { s, l } = getColorValues();
     const theme = { bg: hslToHex(hue, s, l), fg: computeFg(hue, s, l) };
+    const emoji = getEmoji();
 
     if (isEditMode) {
         const idx = parseInt(editIndex, 10);
@@ -185,15 +221,15 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
         const baseCount = baseProfile.spaces?.length || 0;
 
         if (idx < baseCount) {
-            await window.FlitStorage.updateSpaceOverride(idx, { name, theme });
+            await window.FlitStorage.updateSpaceOverride(idx, { name, theme, emoji });
         } else {
-            await window.FlitStorage.updateCustomSpace(idx - baseCount, { name, theme });
+            await window.FlitStorage.updateCustomSpace(idx - baseCount, { name, theme, emoji });
         }
         history.back();
     } else {
         await window.FlitStorage.addCustomSpace({
             name,
-            emoji: '🌐',
+            emoji,
             theme,
             feeds: [],
         });
@@ -211,6 +247,7 @@ async function init(profile) {
         const space = profile?.spaces?.[idx];
         if (space) {
             document.querySelector('.ns-input').value = space.name || '';
+            if (emojiInput) emojiInput.value = space.emoji || '🌐';
             bg = space.theme?.bg;
         }
     } else {
@@ -220,12 +257,17 @@ async function init(profile) {
 
     if (bg) {
         const { h, s, l } = hexToHsl(bg);
-        hue  = h;
-        mode = l < 50 ? 'dark' : 'light';
-        if (mode === 'dark') {
-            dotY = 1 - Math.max(0, Math.min(1, (l - 10) / 18));
+        hue = h;
+        if (s < 5) {
+            mode = 'mono';
+            dotY = Math.max(0, Math.min(1, (90 - l) / 82));
         } else {
-            dotY = 1 - Math.max(0, Math.min(1, (l - 78) / 14));
+            mode = l < 50 ? 'dark' : 'light';
+            if (mode === 'dark') {
+                dotY = 1 - Math.max(0, Math.min(1, (l - 10) / 18));
+            } else {
+                dotY = 1 - Math.max(0, Math.min(1, (l - 78) / 14));
+            }
         }
     }
 

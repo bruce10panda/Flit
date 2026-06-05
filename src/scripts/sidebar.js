@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!profile) return;
 
     const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
+    const activeSpace = profile.spaces[activeIndex] || profile.spaces[0];
+    if (activeSpace) {
+        document.querySelector('h1').textContent = activeSpace.name;
+    }
+
     const list = document.querySelector('#spaces-list');
 
     profile.spaces.forEach((space, i) => {

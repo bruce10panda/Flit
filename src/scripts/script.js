@@ -55,6 +55,7 @@ async function loadAndApplyTheme() {
             if (extra.length) space.feeds = [...(space.feeds || []), ...extra];
             if (override.theme) space.theme = override.theme;
             if (override.name) space.name = override.name;
+            if (override.emoji) space.emoji = override.emoji;
         });
 
         // Merge user preference overrides

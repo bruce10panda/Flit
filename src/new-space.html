@@ -9,10 +9,6 @@
     <link rel="icon" href="./assets/icon.png" type="image/x-icon">
     <meta name="view-transition" content="same-origin" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   </head>
   <body>
 
@@ -34,6 +30,9 @@
       <p class="ns-label">Name your space</p>
 
       <div class="ns-name-row">
+        <div class="ns-emoji-btn">
+          <input class="ns-emoji-input" id="ns-emoji-input" type="text" placeholder="🌐" />
+        </div>
         <div class="ns-input-pill">
           <input class="ns-input" type="text" placeholder="Space Name" />
         </div>
@@ -57,6 +56,9 @@
           </div>
           <div class="ns-theme-btn overlay" id="btn-dark">
             <span class="material-symbols-rounded">dark_mode</span>
+          </div>
+          <div class="ns-theme-btn overlay" id="btn-mono">
+            <span class="material-symbols-rounded">filter_b_and_w</span>
           </div>
         </div>
       </div>
