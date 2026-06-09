@@ -38,8 +38,6 @@ const applyProfileTheme = (theme) => {
     root.style.setProperty('--link-underline', `rgba(${r}, ${g}, ${b}, 0.3)`);
 };
 
-// Fetches profile.json, merges saved user data, applies the active space's
-// theme, and returns the full profile so callers can read feeds, preferences, etc.
 async function loadAndApplyTheme() {
     try {
         const res = await fetch('profile.json');
@@ -48,7 +46,6 @@ async function loadAndApplyTheme() {
         const userData = await window.FlitStorage.getUserData();
         const activeIndex = userData.activeSpaceIndex || 0;
 
-        // Merge user-added feeds and theme overrides per space
         profile.spaces?.forEach((space, i) => {
             const override = userData.spaceOverrides?.[i] || {};
             const extra = override.extraFeeds || [];
@@ -58,12 +55,10 @@ async function loadAndApplyTheme() {
             if (override.emoji) space.emoji = override.emoji;
         });
 
-        // Merge user preference overrides
         if (userData.preferences && Object.keys(userData.preferences).length) {
             profile.preferences = { ...profile.preferences, ...userData.preferences };
         }
 
-        // Append user-created spaces
         if (userData.customSpaces?.length) {
             profile.spaces = [...(profile.spaces || []), ...userData.customSpaces];
         }
@@ -108,20 +103,18 @@ const processArticleContent = (container) => {
             return;
         }
 
-        // 1–4 word paragraphs with no sentence-ending punctuation are treated as labels/captions
         if (wordCount >= 1 && wordCount <= 4 && !/[.!?]$/.test(text)) {
             p.setAttribute('data-label', '');
         }
     });
 };
 
-// Exposed so article-reader.js can call it after injecting content
 window.processArticleContent = processArticleContent;
 
 // ── Sidebar button ────────────────────────────────────────────────────────
 
 const sidebarBtn = document.querySelector('#sidebar-btn');
-if (sidebarBtn) sidebarBtn.addEventListener('click', () => window.location.href = 'sidebar.html');
+if (sidebarBtn) sidebarBtn.addEventListener('click', () => FlitRouter.navigate('sidebar'));
 
 // ── Reload button ──────────────────────────────────────────────────────────
 
@@ -129,10 +122,11 @@ const refreshButton = document.querySelector('.reload');
 
 if (refreshButton) {
     refreshButton.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const feedPage = document.getElementById('page-feed');
+        feedPage.scrollTo({ top: 0, behavior: 'smooth' });
 
         const checkScroll = setInterval(() => {
-            if (window.scrollY === 0) {
+            if (feedPage.scrollTop === 0) {
                 clearInterval(checkScroll);
                 location.reload();
             }

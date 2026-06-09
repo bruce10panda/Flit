@@ -46,7 +46,9 @@ function normalizeSrc(src) {
 }
 
 async function fetchArticleHTML(url) {
-    const attempts = proxySources.map(proxy => fetch(proxy + encodeURIComponent(url)));
+    const attempts = proxySources
+        .map(proxy => fetch(proxy + encodeURIComponent(url)))
+        .map(p => p.then(r => r.ok ? r : Promise.reject(new Error(`HTTP ${r.status}`))));
     try {
         const response = await Promise.any(attempts);
         return await response.text();
@@ -118,7 +120,30 @@ function stripBoilerplate(container) {
     }
 }
 
-async function loadArticle() {
+// ── Init (called when navigating to the article page) ─────────────────────
+// Starts fetching immediately so content loads during the slide animation.
+
+async function loadArticle(p) {
+    const articlePage = document.getElementById('page-article');
+
+    // Scope all queries to the article page to avoid conflicts with feed posts
+    const postContainer = articlePage.querySelector('.post');
+    const titleEl       = articlePage.querySelector('.title');
+    const sourceNameEl  = articlePage.querySelector('.source-name');
+    const sourceImgEl   = articlePage.querySelector('.source-info img');
+    const authorEl      = articlePage.querySelector('.author');
+    const timeEl        = articlePage.querySelector('.time');
+
+    // Reset previous article
+    articlePage.querySelector('.article-content')?.remove();
+    articlePage.querySelector('.main-article-img')?.remove();
+    articlePage.querySelector('.post-image')?.remove();
+    titleEl.textContent      = 'Loading…';
+    sourceNameEl.textContent = '';
+    authorEl.textContent     = '';
+    timeEl.textContent       = '';
+    if (sourceImgEl) sourceImgEl.src = '';
+
     let experimentalReaderEnabled = false;
 
     try {
@@ -128,19 +153,10 @@ async function loadArticle() {
         console.error("Reader: Profile fetch failed", e);
     }
 
-    const articleUrl = new URLSearchParams(window.location.search).get('url');
-    const savedData = JSON.parse(sessionStorage.getItem('currentPostData'));
+    const articleUrl = p?.url || FlitRouter.getParam('url');
+    const savedData  = JSON.parse(sessionStorage.getItem('currentPostData'));
 
     if (!articleUrl) return;
-
-    const postContainer = document.querySelector('.post');
-    const titleEl       = document.querySelector('.title');
-    const sourceNameEl  = document.querySelector('.source-name');
-    const sourceImgEl   = document.querySelector('.source-info img');
-    const authorEl      = document.querySelector('.author');
-    const timeEl        = document.querySelector('.time');
-
-    document.querySelector('.post-image')?.remove();
 
     if (savedData) {
         titleEl.textContent      = savedData.title;
@@ -149,7 +165,7 @@ async function loadArticle() {
         timeEl.textContent       = getTimeAgo(savedData.date);
         sourceImgEl.src          = savedData.feedImage || `https://www.google.com/s2/favicons?sz=64&domain=${articleUrl}`;
 
-        const actionBtn = document.querySelector('.open-source');
+        const actionBtn = articlePage.querySelector('.open-source');
         const btnText   = actionBtn?.querySelector('p');
 
         if (actionBtn) {
@@ -175,7 +191,7 @@ async function loadArticle() {
             titleEl.parentNode.insertBefore(firstImg, titleEl);
         }
     } else {
-        titleEl.textContent = 'Loading...';
+        titleEl.textContent = 'Loading…';
     }
 
     const html = await fetchArticleHTML(articleUrl);
@@ -234,6 +250,4 @@ async function loadArticle() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', loadArticle);
-
-document.getElementById('back-btn')?.addEventListener('click', () => window.history.back());
+FlitRouter.register('article', { init: loadArticle });

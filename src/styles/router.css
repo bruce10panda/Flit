@@ -1,0 +1,106 @@
+/* ── SPA shell ───────────────────────────────────────────────────────────── */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+#app {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* ── Pages ───────────────────────────────────────────────────────────────── */
+
+.page {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+    transform: translateX(100%);
+
+    /* Layout (mirrors the original body styles from global.css) */
+    background: var(--theme-bg);
+    color: var(--theme-fg);
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    gap: 32px;
+}
+
+/* Feed is the home page — starts visible */
+#page-feed {
+    transform: translateX(0);
+}
+
+/* Sidebar rests off to the left */
+#page-sidebar {
+    transform: translateX(-100%);
+}
+
+/* ── Transitions ─────────────────────────────────────────────────────────── */
+
+.page.animating {
+    transition: transform 380ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Browser page overrides ──────────────────────────────────────────────── */
+/* browser.css sets these on <body>; in the SPA we scope them to the page div */
+
+#page-browser {
+    overflow: hidden;
+    gap: 16px;
+    align-items: stretch;
+    padding: 6px;
+    padding-top: max(6px, env(safe-area-inset-top));
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+/* ── Cross-page CSS conflict fixes ───────────────────────────────────────── */
+/* article.css and index.css share some class names; scope them to their page */
+
+#page-article .post {
+    padding: 0;
+    border-radius: 0;
+    overflow: visible;
+    cursor: default;
+}
+
+#page-feed .post .source {
+    justify-content: flex-start;
+}
+
+#page-article .source {
+    justify-content: space-between;
+    gap: 0;
+}
+
+#page-feed .post .source img {
+    width: 16px;
+    height: 16px;
+}
+
+#page-article .source img {
+    width: 32px;
+    height: 32px;
+}
+
+#page-feed .post .title {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0;
+}
+
+#page-article .post-image,
+#page-article .main-article-img {
+    border-radius: 12px;
+}
