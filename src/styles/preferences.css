@@ -209,3 +209,29 @@
     transform: translateX(15px);
 }
 
+/* ── Language selector ───────────────────────────────────────────────────── */
+
+.pref-lang-select {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.pref-lang-btn {
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    background: var(--theme-fg-5);
+    color: var(--theme-fg-64);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-family: inherit;
+}
+
+.pref-lang-btn.active {
+    background: var(--theme-fg-64);
+    color: var(--theme-bg);
+}
+

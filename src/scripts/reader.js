@@ -1,5 +1,7 @@
 const feedContainer = document.querySelector('.feed');
-const PAGE_SIZE = 30;
+const INITIAL_BATCH = 3;
+const PAGE_SIZE = 10;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 let allPosts = [];
 let currentOffset = 0;
@@ -9,16 +11,23 @@ let openInReader = true;
 
 
 async function fetchFeed(url) {
-    const attempts = [
-        fetch(url),
-        ...proxySources.map(p => fetch(p + encodeURIComponent(url)))
-    ];
+    const allUrls = [url, ...proxySources.map(p => p + encodeURIComponent(url))];
+    const controllers = allUrls.map(() => new AbortController());
+    const timeoutId = setTimeout(() => controllers.forEach(c => c.abort()), 10000);
+
+    const attempts = allUrls.map((fetchUrl, i) =>
+        fetch(fetchUrl, { signal: controllers[i].signal })
+            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return { r, i }; })
+    );
 
     try {
-        const response = await Promise.any(attempts);
-        const text = await response.text();
+        const { r, i } = await Promise.any(attempts);
+        clearTimeout(timeoutId);
+        controllers.forEach((c, j) => { if (j !== i) c.abort(); });
+        const text = await r.text();
         return new DOMParser().parseFromString(text, 'application/xml');
     } catch (err) {
+        clearTimeout(timeoutId);
         console.error(`Failed to fetch feed: ${url}`, err);
         return null;
     }
@@ -68,7 +77,7 @@ function createPostElement(postData) {
 
         post.innerHTML = `
             <div class="source">
-                <img src="${postData.feedImage || 'https://www.google.com/s2/favicons?sz=64&domain=bsky.app'}" alt="Avatar" onerror="this.src='https://www.google.com/s2/favicons?sz=64&domain=bsky.app'">
+                <img src="${postData.feedImage || 'https://www.google.com/s2/favicons?sz=64&domain=bsky.app'}" alt="Avatar" loading="lazy" onerror="this.src='https://www.google.com/s2/favicons?sz=64&domain=bsky.app'">
                 <p class="source-name">${postData.feedTitle}</p>
             </div>
             <p class="bsky-body">${postData.title}</p>
@@ -104,14 +113,14 @@ function createPostElement(postData) {
 
         post.innerHTML = `
             <div class="source">
-                <img src="https://www.google.com/s2/favicons?sz=64&domain=${postData.link}" alt="Source Icon">
+                <img src="https://www.google.com/s2/favicons?sz=64&domain=${postData.link}" alt="Source Icon" loading="lazy">
                 <p class="source-name">${postData.feedTitle}</p>
             </div>
-            ${postData.image ? `<img class="post-image" src="${postData.image}" alt="Post Image" onerror="this.remove()">` : ''}
+            ${postData.image ? `<img class="post-image" src="${postData.image}" alt="Post Image" loading="lazy" onerror="this.remove()">` : ''}
             <h2 class="title">${postData.title}</h2>
             <p class="description">${postData.description}</p>
             <div class="author-time">
-                <p class="author">${postData.readTime} min read</p>
+                <p class="author">${window.t('min_read', { n: postData.readTime })}</p>
                 <p class="time">${getTimeAgo(postData.date)}</p>
             </div>
         `;
@@ -120,12 +129,61 @@ function createPostElement(postData) {
     return post;
 }
 
+function getCachedPosts(key) {
+    try {
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+        const { posts, ts } = JSON.parse(raw);
+        if (Date.now() - ts > CACHE_TTL) return null;
+        return posts.map(p => ({ ...p, date: new Date(p.date) }));
+    } catch { return null; }
+}
+
+function setCachedPosts(key, posts) {
+    try {
+        sessionStorage.setItem(key, JSON.stringify({
+            posts: posts.map(p => ({ ...p, date: p.date instanceof Date ? p.date.toISOString() : p.date })),
+            ts: Date.now(),
+        }));
+    } catch {} // ignore quota errors
+}
+
+function schedulePreload() {
+    if (!('requestIdleCallback' in window)) return;
+    if (navigator.connection?.saveData) return;
+    const ect = navigator.connection?.effectiveType;
+    if (ect === 'slow-2g' || ect === '2g') return;
+
+    const upcoming = allPosts
+        .slice(currentOffset, currentOffset + PAGE_SIZE)
+        .filter(p => !p.isBluesky && p.link);
+
+    requestIdleCallback(async () => {
+        for (const post of upcoming) {
+            const cacheKey = 'flit_preload_' + post.link;
+            if (sessionStorage.getItem(cacheKey)) continue;
+            try {
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 15000);
+                const r = await fetch(proxySources[0] + encodeURIComponent(post.link), { signal: controller.signal });
+                if (r.ok) {
+                    const html = await r.text();
+                    try { sessionStorage.setItem(cacheKey, html); } catch {}
+                }
+            } catch {} // Silently ignore preload failures
+        }
+    }, { timeout: 5000 });
+}
+
 function appendBatch() {
-    const batch = allPosts.slice(currentOffset, currentOffset + PAGE_SIZE);
+    const batchSize = currentOffset === 0 ? INITIAL_BATCH : PAGE_SIZE;
+    const batch = allPosts.slice(currentOffset, currentOffset + batchSize);
     if (batch.length === 0) return;
 
     batch.forEach(postData => feedContainer.insertBefore(createPostElement(postData), sentinel));
     currentOffset += batch.length;
+
+    schedulePreload();
 
     if (currentOffset >= allPosts.length) {
         observer.disconnect();
@@ -135,7 +193,7 @@ function appendBatch() {
 }
 
 function renderPosts() {
-    feedContainer.innerHTML = `<p class="feed-name">Recent Updates</p>`;
+    feedContainer.innerHTML = `<p class="feed-name">${window.t('recent_updates')}</p>`;
     currentOffset = 0;
 
     sentinel = document.createElement('div');
@@ -144,7 +202,7 @@ function renderPosts() {
 
     observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) appendBatch();
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '400px' });
 
     observer.observe(sentinel);
 }
@@ -164,8 +222,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.querySelector('h1').textContent = activeSpace.name;
         }
 
+        const cacheKey = 'flit_posts_' + activeIndex;
+        const cached = getCachedPosts(cacheKey);
+        if (cached) {
+            allPosts = cached;
+            renderPosts();
+            return;
+        }
+
         const feedUrls = activeSpace.feeds || [];
-        feedContainer.innerHTML = `<p class="feed-name">Loading ${activeSpace.name}...</p>`;
+        feedContainer.innerHTML = `<p class="feed-name">${window.t('loading', { name: activeSpace.name })}</p>`;
 
         const feedPromises = feedUrls.map(async (url) => {
             const isBluesky = url.startsWith('@') || /bsky\.app/i.test(url);
@@ -235,13 +301,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         allPosts.sort((a, b) => b.date - a.date);
 
         if (allPosts.length > 0) {
+            setCachedPosts(cacheKey, allPosts);
             renderPosts();
         } else {
-            feedContainer.innerHTML = '<p class="feed-name">No posts found.</p>';
+            feedContainer.innerHTML = `<p class="feed-name">${window.t('no_posts')}</p>`;
         }
 
     } catch (err) {
         console.error("Initialization Error:", err);
-        feedContainer.innerHTML = '<p class="feed-name">Error loading profile.</p>';
+        feedContainer.innerHTML = `<p class="feed-name">${window.t('error_loading')}</p>`;
     }
 });

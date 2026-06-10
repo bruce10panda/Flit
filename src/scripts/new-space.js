@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
 
     if (isEditMode) {
-        document.getElementById('page-title').textContent = 'Edit a Space';
+        document.getElementById('page-title').textContent = window.t('edit_a_space_title');
         document.getElementById('create-btn-icon').textContent = 'check';
-        document.getElementById('create-btn-label').textContent = 'Save Changes';
+        document.getElementById('create-btn-label').textContent = window.t('save_changes');
     }
 
     await init(profile);

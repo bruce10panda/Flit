@@ -15,15 +15,11 @@ function buildSpaceItem(space, spaceIndex) {
                 <div class="pref-sub-indicator"></div>
                 <div class="pref-sub-content">
                     <div class="pref-sub-item" id="edit-theme-${spaceIndex}">
-                        <p>Edit Space</p>
+                        <p>${window.t('edit_space')}</p>
                         <span class="material-symbols-rounded">chevron_right</span>
                     </div>
                     <div class="pref-sub-item">
-                        <p>Edit Sources</p>
-                        <span class="material-symbols-rounded">chevron_right</span>
-                    </div>
-                    <div class="pref-sub-item">
-                        <p>Block Keywords</p>
+                        <p>${window.t('delete_sources')}</p>
                         <span class="material-symbols-rounded">chevron_right</span>
                     </div>
                 </div>
@@ -68,6 +64,19 @@ async function initReaderToggles(profile) {
     });
 }
 
+function initLangSelect() {
+    const current = window.flitLang || 'en';
+    document.querySelectorAll('.pref-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === current);
+        btn.addEventListener('click', () => {
+            const newLang = btn.dataset.lang;
+            if (newLang === window.flitLang) return;
+            localStorage.setItem('flit_lang', newLang);
+            location.reload();
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
     const container = document.getElementById('pref-spaces');
@@ -76,6 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     spaces.forEach((space, i) => container.appendChild(buildSpaceItem(space, i)));
 
     await initReaderToggles(profile);
+    initLangSelect();
 });
 
 document.getElementById('back-btn')?.addEventListener('click', () => history.back());

@@ -19,6 +19,8 @@
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 160px;
 }
 
 .source {

@@ -46,11 +46,29 @@ function normalizeSrc(src) {
 }
 
 async function fetchArticleHTML(url) {
-    const attempts = proxySources.map(proxy => fetch(proxy + encodeURIComponent(url)));
+    const cacheKey = 'flit_preload_' + url;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+        sessionStorage.removeItem(cacheKey);
+        return cached;
+    }
+
+    const allUrls = proxySources.map(proxy => proxy + encodeURIComponent(url));
+    const controllers = allUrls.map(() => new AbortController());
+    const timeoutId = setTimeout(() => controllers.forEach(c => c.abort()), 12000);
+
+    const attempts = allUrls.map((fetchUrl, i) =>
+        fetch(fetchUrl, { signal: controllers[i].signal })
+            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return { r, i }; })
+    );
+
     try {
-        const response = await Promise.any(attempts);
-        return await response.text();
+        const { r, i } = await Promise.any(attempts);
+        clearTimeout(timeoutId);
+        controllers.forEach((c, j) => { if (j !== i) c.abort(); });
+        return await r.text();
     } catch (err) {
+        clearTimeout(timeoutId);
         console.error("Failed to fetch article content:", err);
         return null;
     }
@@ -155,7 +173,7 @@ async function loadArticle() {
         if (actionBtn) {
             try {
                 const domain = new URL(articleUrl).hostname.replace('www.', '');
-                if (btnText) btnText.textContent = `Open on ${domain}`;
+                if (btnText) btnText.textContent = window.t('open_on', { domain });
                 actionBtn.onclick = () => {
                     if (window.__TAURI__) {
                         window.__TAURI__.opener.openUrl(articleUrl);
@@ -164,7 +182,7 @@ async function loadArticle() {
                     }
                 };
             } catch (e) {
-                if (btnText) btnText.textContent = 'Open Original Source';
+                if (btnText) btnText.textContent = window.t('open_source');
             }
         }
 
@@ -175,7 +193,7 @@ async function loadArticle() {
             titleEl.parentNode.insertBefore(firstImg, titleEl);
         }
     } else {
-        titleEl.textContent = 'Loading...';
+        titleEl.textContent = window.t('loading_article');
     }
 
     const html = await fetchArticleHTML(articleUrl);

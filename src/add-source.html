@@ -19,7 +19,7 @@
           </div>
         </div>
         <div class="header-top-info">
-          <h1>Add a Source</h1>
+          <h1 data-i18n="add_a_source">Add a Source</h1>
         </div>
       </div>
     </div>
@@ -30,14 +30,14 @@
         <div class="source-header">
           <div class="source-header-left">
             <span class="material-symbols-rounded source-icon--rss">rss_feed</span>
-            <p>RSS Feed</p>
+            <p data-i18n="rss_feed">RSS Feed</p>
           </div>
           <span class="material-symbols-rounded source-chevron">chevron_right</span>
         </div>
         <div class="source-body">
           <div class="source-input-row">
             <div class="source-input-pill">
-              <input class="source-input" type="url" placeholder="https://flit.news/rss" />
+              <input class="source-input" type="url" placeholder="https://flit.news/rss" data-i18n-placeholder="rss_placeholder" />
             </div>
             <button class="source-add-btn"><span class="material-symbols-rounded">add</span></button>
           </div>
@@ -50,14 +50,14 @@
         <div class="source-header">
           <div class="source-header-left">
             <span class="source-icon--bluesky"></span>
-            <p>Bluesky</p>
+            <p data-i18n="bluesky">Bluesky</p>
           </div>
           <span class="material-symbols-rounded source-chevron">chevron_right</span>
         </div>
         <div class="source-body">
           <div class="source-input-row">
             <div class="source-input-pill">
-              <input class="source-input" type="text" placeholder="@flit.news" />
+              <input class="source-input" type="text" placeholder="@flit.news" data-i18n-placeholder="bsky_placeholder" />
             </div>
             <button class="source-add-btn"><span class="material-symbols-rounded">add</span></button>
           </div>
@@ -67,6 +67,7 @@
     </div>
   </body>
   <script src="scripts/storage.js"></script>
+  <script src="scripts/i18n.js"></script>
   <script src="scripts/script.js"></script>
   <script src="scripts/add-source.js"></script>
 </html>

@@ -19,38 +19,53 @@
           </div>
         </div>
         <div class="header-top-info">
-          <h1>Preferences</h1>
+          <h1 data-i18n="preferences">Preferences</h1>
         </div>
       </div>
     </div>
 
     <div class="pref-list">
-      <p class="pref-section-label">Edit a Space</p>
+      <p class="pref-section-label" data-i18n="edit_a_space">Edit a Space</p>
       <div class="pref-spaces" id="pref-spaces"></div>
 
       <hr>
 
-      <p class="pref-section-label">Reader Settings</p>
+      <p class="pref-section-label" data-i18n="reader_settings">Reader Settings</p>
       <div class="pref-reader">
         <div class="pref-row">
           <span class="material-symbols-rounded">article</span>
-          <p>Use Built-in Reader</p>
+          <p data-i18n="use_builtin_reader">Use Built-in Reader</p>
           <div class="pref-toggle" id="toggle-open-reader">
             <div class="pref-toggle-knob"></div>
           </div>
         </div>
         <div class="pref-row">
           <span class="material-symbols-rounded">auto_stories</span>
-          <p>Use Clean Reader</p>
+          <p data-i18n="use_clean_reader">Use Clean Reader</p>
           <span class="material-symbols-rounded pref-row-warning">warning</span>
           <div class="pref-toggle" id="toggle-clean-reader">
             <div class="pref-toggle-knob"></div>
           </div>
         </div>
       </div>
+
+      <hr>
+
+      <p class="pref-section-label" data-i18n="app_settings">App Settings</p>
+      <div class="pref-reader">
+        <div class="pref-row">
+          <span class="material-symbols-rounded">language</span>
+          <p data-i18n="language">Language</p>
+          <div class="pref-lang-select">
+            <button class="pref-lang-btn" data-lang="en">EN</button>
+            <button class="pref-lang-btn" data-lang="nl">NL</button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
   <script src="scripts/storage.js"></script>
+  <script src="scripts/i18n.js"></script>
   <script src="scripts/script.js"></script>
   <script src="scripts/preferences.js"></script>
 </html>
