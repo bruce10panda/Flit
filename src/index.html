@@ -4,35 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flit</title>
-
-    <!-- Styles — all pages loaded upfront -->
     <link rel="stylesheet" href="styles/global.css">
-    <link rel="stylesheet" href="styles/router.css">
     <link rel="stylesheet" href="styles/index.css">
-    <link rel="stylesheet" href="styles/sidebar.css">
-    <link rel="stylesheet" href="styles/article.css">
-    <link rel="stylesheet" href="styles/browser.css">
-    <link rel="stylesheet" href="styles/preferences.css">
-    <link rel="stylesheet" href="styles/new-space.css">
-    <link rel="stylesheet" href="styles/add-source.css">
-
     <link rel="icon" href="./assets/icon.png" type="image/x-icon">
+    <meta name="view-transition" content="same-origin" />
 
-    <!-- Readability loaded upfront so it's ready when an article is opened -->
-    <script src="https://cdn.jsdelivr.net/npm/@mozilla/readability@0.4.4/Readability.js"></script>
   </head>
   <body>
-    <div id="app">
-
-      <!-- ═══════════════════════════════════════════════════════════════════
-           Feed  (center / home — starts visible)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-feed">
         <div class="top">
           <div class="header-nav-top">
             <div class="nav-top-all">
-              <div class="nav-top overlay" id="sidebar-btn">
-                <span class="material-symbols-rounded">left_panel_open</span>
+              <div class="nav-top overlay">
+                <span class="material-symbols-rounded" id="sidebar-btn">left_panel_open</span>
               </div>
               <div class="nav-top overlay">
                 <span class="material-symbols-rounded reload">refresh</span>
@@ -44,266 +27,11 @@
             </div>
           </div>
         </div>
-        <div class="feed"></div>
-      </div>
 
-      <!-- ═══════════════════════════════════════════════════════════════════
-           Sidebar  (left panel)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-sidebar">
-        <div class="top">
-          <div class="header-nav-top">
-            <div class="nav-top-all">
-              <div class="nav-top overlay" id="close-sidebar-btn">
-                <span class="material-symbols-rounded">left_panel_close</span>
-                <span class="material-symbols-rounded" id="settings-btn">settings</span>
-                <span class="material-symbols-rounded" id="preferences-btn">tune</span>
-              </div>
-              <div class="add-btn-anchor">
-                <div class="add-btn" id="add-btn">
-                  <div class="add-btn-row">
-                    <span class="material-symbols-rounded">add_2</span>
-                    <p class="add-btn-label">Add Feed</p>
-                  </div>
-                  <div class="add-btn-row add-btn-row--second">
-                    <span class="material-symbols-rounded">dashboard</span>
-                    <p class="add-btn-label">New Space</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="header-top-info">
-              <h1>Home</h1>
-            </div>
-          </div>
+        <div class="feed">
         </div>
-        <div class="sidebar-menu">
-          <div class="list" id="spaces-list">
-            <p>SPACES</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════════════════════════════
-           Article reader  (right)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-article">
-        <div class="top">
-          <div class="header-nav-top">
-            <div class="nav-top-all">
-              <div class="nav-top overlay" data-back>
-                <span class="material-symbols-rounded">arrow_back_ios_new</span>
-              </div>
-              <div class="nav-top overlay">
-                <span class="material-symbols-rounded">bookmark</span>
-                <span class="material-symbols-rounded">ios_share</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="post">
-          <div class="source">
-            <div class="source-info">
-              <img src="" alt="Source Icon">
-              <div class="source-author">
-                <p class="source-name"></p>
-                <p class="author"></p>
-              </div>
-            </div>
-            <p class="time"></p>
-          </div>
-          <h2 class="title"></h2>
-        </div>
-        <div class="overlay btn open-source">
-          <span class="material-symbols-rounded">open_in_new</span>
-          <p>Open on Source</p>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════════════════════════════
-           Browser  (right)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-browser">
-        <div class="browser-nav">
-          <div class="nav-top overlay" data-back>
-            <span class="material-symbols-rounded">close</span>
-          </div>
-          <div class="nav-top overlay" id="browser-actions">
-            <span class="material-symbols-rounded" id="browser-share">ios_share</span>
-            <span class="material-symbols-rounded" id="browser-open-external">open_in_new</span>
-          </div>
-        </div>
-        <div class="browser-content">
-          <div class="browser-loading" id="browser-loading">
-            <span class="material-symbols-rounded">progress_activity</span>
-          </div>
-          <iframe id="browser-iframe" title="Website"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════════════════════════════
-           Preferences  (right)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-preferences">
-        <div class="top">
-          <div class="header-nav-top">
-            <div class="nav-top-all">
-              <div class="nav-top overlay" data-back>
-                <span class="material-symbols-rounded">arrow_back_ios_new</span>
-              </div>
-            </div>
-            <div class="header-top-info">
-              <h1>Preferences</h1>
-            </div>
-          </div>
-        </div>
-        <div class="pref-list">
-          <p class="pref-section-label">Edit a Space</p>
-          <div class="pref-spaces" id="pref-spaces"></div>
-          <hr>
-          <p class="pref-section-label">Reader Settings</p>
-          <div class="pref-reader">
-            <div class="pref-row">
-              <span class="material-symbols-rounded">article</span>
-              <p>Use Built-in Reader</p>
-              <div class="pref-toggle" id="toggle-open-reader">
-                <div class="pref-toggle-knob"></div>
-              </div>
-            </div>
-            <div class="pref-row">
-              <span class="material-symbols-rounded">auto_stories</span>
-              <p>Use Clean Reader</p>
-              <span class="material-symbols-rounded pref-row-warning">warning</span>
-              <div class="pref-toggle" id="toggle-clean-reader">
-                <div class="pref-toggle-knob"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════════════════════════════
-           New Space / Edit Space  (right)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-new-space">
-        <div class="top">
-          <div class="header-nav-top">
-            <div class="nav-top-all">
-              <div class="nav-top overlay" data-back>
-                <span class="material-symbols-rounded">arrow_back_ios_new</span>
-              </div>
-            </div>
-            <div class="header-top-info">
-              <h1 id="page-title">Add a Space</h1>
-            </div>
-          </div>
-        </div>
-        <div class="ns-content">
-          <p class="ns-label">Name your space</p>
-          <div class="ns-name-row">
-            <div class="ns-emoji-btn">
-              <input class="ns-emoji-input" id="ns-emoji-input" type="text" placeholder="🌐" />
-            </div>
-            <div class="ns-input-pill">
-              <input class="ns-input" type="text" placeholder="Space Name" />
-            </div>
-          </div>
-          <hr>
-          <p class="ns-label">Edit theme</p>
-          <div class="ns-theme-section">
-            <div class="ns-canvas-wrapper">
-              <canvas id="color-canvas" width="180" height="180"></canvas>
-            </div>
-            <div class="ns-theme-controls">
-              <div class="ns-theme-btn overlay" id="btn-shuffle">
-                <span class="material-symbols-rounded">shuffle</span>
-              </div>
-              <div class="ns-theme-btn overlay" id="btn-light">
-                <span class="material-symbols-rounded">light_mode</span>
-              </div>
-              <div class="ns-theme-btn overlay" id="btn-dark">
-                <span class="material-symbols-rounded">dark_mode</span>
-              </div>
-              <div class="ns-theme-btn overlay" id="btn-mono">
-                <span class="material-symbols-rounded">filter_b_and_w</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="btn overlay" id="create-btn">
-          <span class="material-symbols-rounded" id="create-btn-icon">add_2</span>
-          <p id="create-btn-label">Create your Space</p>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════════════════════════════
-           Add a Source  (right)
-      ════════════════════════════════════════════════════════════════════════ -->
-      <div class="page" id="page-add-source">
-        <div class="top">
-          <div class="header-nav-top">
-            <div class="nav-top-all">
-              <div class="nav-top overlay" data-back>
-                <span class="material-symbols-rounded">arrow_back_ios_new</span>
-              </div>
-            </div>
-            <div class="header-top-info">
-              <h1>Add a Source</h1>
-            </div>
-          </div>
-        </div>
-        <div class="source-list">
-          <div class="source-section">
-            <div class="source-header">
-              <div class="source-header-left">
-                <span class="material-symbols-rounded source-icon--rss">rss_feed</span>
-                <p>RSS Feed</p>
-              </div>
-              <span class="material-symbols-rounded source-chevron">chevron_right</span>
-            </div>
-            <div class="source-body">
-              <div class="source-input-row">
-                <div class="source-input-pill">
-                  <input class="source-input" type="url" placeholder="https://flit.news/rss" />
-                </div>
-                <button class="source-add-btn"><span class="material-symbols-rounded">add</span></button>
-              </div>
-            </div>
-          </div>
-          <hr>
-          <div class="source-section">
-            <div class="source-header">
-              <div class="source-header-left">
-                <span class="source-icon--bluesky"></span>
-                <p>Bluesky</p>
-              </div>
-              <span class="material-symbols-rounded source-chevron">chevron_right</span>
-            </div>
-            <div class="source-body">
-              <div class="source-input-row">
-                <div class="source-input-pill">
-                  <input class="source-input" type="text" placeholder="@flit.news" />
-                </div>
-                <button class="source-add-btn"><span class="material-symbols-rounded">add</span></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /#app -->
-
-    <!-- Scripts — order matters: storage → router → shared utils → page modules -->
-    <script src="scripts/storage.js"></script>
-    <script src="scripts/router.js"></script>
-    <script src="scripts/script.js"></script>
-    <script src="scripts/reader.js"></script>
-    <script src="scripts/sidebar.js"></script>
-    <script src="scripts/browser.js"></script>
-    <script src="scripts/article-reader.js"></script>
-    <script src="scripts/preferences.js"></script>
-    <script src="scripts/new-space.js"></script>
-    <script src="scripts/add-source.js"></script>
   </body>
+  <script src="scripts/storage.js"></script>
+  <script src="scripts/script.js"></script>
+  <script src="scripts/reader.js"></script>
 </html>

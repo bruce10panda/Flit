@@ -1,15 +1,19 @@
-// ── Accordion headers ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadAndApplyTheme();
+});
 
-document.querySelectorAll('#page-add-source .source-header').forEach(header => {
+document.querySelector('#back-btn')?.addEventListener('click', () => {
+    history.back();
+});
+
+document.querySelectorAll('.source-header').forEach(header => {
     header.addEventListener('click', () => {
         const section = header.closest('.source-section');
         const isOpen = section.classList.contains('open');
-        document.querySelectorAll('#page-add-source .source-section').forEach(s => s.classList.remove('open'));
+        document.querySelectorAll('.source-section').forEach(s => s.classList.remove('open'));
         if (!isOpen) section.classList.add('open');
     });
 });
-
-// ── Storage helpers ────────────────────────────────────────────────────────
 
 async function addFeedToStorage(feedUrl) {
     const spaceIndex = await window.FlitStorage.getActiveSpaceIndex();
@@ -40,13 +44,11 @@ function showError(input) {
 
 function showSuccess(row) {
     row.classList.add('success');
-    setTimeout(() => FlitRouter.back(), 700);
+    setTimeout(() => history.back(), 700);
 }
 
-// ── Section refs ───────────────────────────────────────────────────────────
-
-const sections    = document.querySelectorAll('#page-add-source .source-section');
-const rssSection  = sections[0];
+const sections = document.querySelectorAll('.source-section');
+const rssSection = sections[0];
 const bskySection = sections[1];
 
 // ── RSS ────────────────────────────────────────────────────────────────────
@@ -80,16 +82,3 @@ async function submitBsky() {
 
 bskyBtn?.addEventListener('click', submitBsky);
 bskyInput?.addEventListener('keydown', e => { if (e.key === 'Enter') submitBsky(); });
-
-// ── Init (called each time the page is opened) ─────────────────────────────
-
-async function initAddSource() {
-    await loadAndApplyTheme();
-    // Reset inputs and accordion state
-    if (rssInput)  rssInput.value  = '';
-    if (bskyInput) bskyInput.value = '';
-    document.querySelectorAll('#page-add-source .source-section').forEach(s => s.classList.remove('open'));
-    document.querySelectorAll('#page-add-source .source-input-row').forEach(r => r.classList.remove('success'));
-}
-
-FlitRouter.register('add-source', { init: initAddSource });

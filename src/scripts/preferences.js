@@ -38,7 +38,7 @@ function buildSpaceItem(space, spaceIndex) {
     });
 
     item.querySelector(`#edit-theme-${spaceIndex}`).addEventListener('click', () => {
-        FlitRouter.navigate('new-space', { edit: spaceIndex });
+        window.location.href = `new-space.html?edit=${spaceIndex}`;
     });
 
     return item;
@@ -48,36 +48,34 @@ function setToggle(id, isOn) {
     document.getElementById(id)?.classList.toggle('on', isOn);
 }
 
-// ── Reader toggle setup (once) ─────────────────────────────────────────────
+async function initReaderToggles(profile) {
+    const userData = await window.FlitStorage.getUserData();
+    const prefs = { ...profile?.preferences, ...userData.preferences };
 
-document.getElementById('toggle-open-reader')?.addEventListener('click', async () => {
-    const isOn = !document.getElementById('toggle-open-reader').classList.contains('on');
-    setToggle('toggle-open-reader', isOn);
-    await window.FlitStorage.updatePreferences({ open_in_reader: isOn });
-});
+    setToggle('toggle-open-reader',  prefs.open_in_reader !== false);
+    setToggle('toggle-clean-reader', !!prefs.experimental_reader);
 
-document.getElementById('toggle-clean-reader')?.addEventListener('click', async () => {
-    const isOn = !document.getElementById('toggle-clean-reader').classList.contains('on');
-    setToggle('toggle-clean-reader', isOn);
-    await window.FlitStorage.updatePreferences({ experimental_reader: isOn });
-});
+    document.getElementById('toggle-open-reader')?.addEventListener('click', async () => {
+        const isOn = !document.getElementById('toggle-open-reader').classList.contains('on');
+        setToggle('toggle-open-reader', isOn);
+        await window.FlitStorage.updatePreferences({ open_in_reader: isOn });
+    });
 
-// ── Init (called every time preferences is opened) ─────────────────────────
+    document.getElementById('toggle-clean-reader')?.addEventListener('click', async () => {
+        const isOn = !document.getElementById('toggle-clean-reader').classList.contains('on');
+        setToggle('toggle-clean-reader', isOn);
+        await window.FlitStorage.updatePreferences({ experimental_reader: isOn });
+    });
+}
 
-async function initPreferences() {
+document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
     const container = document.getElementById('pref-spaces');
 
-    // Clear and re-render space list
-    container.innerHTML = '';
     const spaces = profile?.spaces || [];
     spaces.forEach((space, i) => container.appendChild(buildSpaceItem(space, i)));
 
-    // Refresh toggle states
-    const userData = await window.FlitStorage.getUserData();
-    const prefs = { ...profile?.preferences, ...userData.preferences };
-    setToggle('toggle-open-reader',  prefs.open_in_reader !== false);
-    setToggle('toggle-clean-reader', !!prefs.experimental_reader);
-}
+    await initReaderToggles(profile);
+});
 
-FlitRouter.register('preferences', { init: initPreferences });
+document.getElementById('back-btn')?.addEventListener('click', () => history.back());

@@ -1,12 +1,10 @@
-// ── Navigation ─────────────────────────────────────────────────────────────
-
 document.querySelector('#close-sidebar-btn')?.addEventListener('click', () => {
-    FlitRouter.back();
+    window.location.href = 'index.html';
 });
 
 document.querySelector('#preferences-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    FlitRouter.navigate('preferences');
+    window.location.href = 'preferences.html';
 });
 
 const addBtn = document.querySelector('#add-btn');
@@ -20,8 +18,8 @@ addBtn?.querySelectorAll('.add-btn-row').forEach((row, i) => {
     row.addEventListener('click', (e) => {
         if (!addBtn.classList.contains('open')) return;
         e.stopPropagation();
-        if (i === 0) FlitRouter.navigate('add-source');
-        if (i === 1) FlitRouter.navigate('new-space');
+        if (i === 0) window.location.href = 'add-source.html';
+        if (i === 1) window.location.href = 'new-space.html';
     });
 });
 
@@ -29,21 +27,17 @@ document.addEventListener('click', () => {
     addBtn?.classList.remove('open');
 });
 
-// ── Init (called every time the sidebar is opened) ─────────────────────────
-
-async function initSidebar() {
+document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
     if (!profile) return;
 
     const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
     const activeSpace = profile.spaces[activeIndex] || profile.spaces[0];
     if (activeSpace) {
-        document.querySelector('#page-sidebar h1').textContent = activeSpace.name;
+        document.querySelector('h1').textContent = activeSpace.name;
     }
 
-    // Re-render the spaces list from scratch
     const list = document.querySelector('#spaces-list');
-    list.innerHTML = '<p>SPACES</p>';
 
     profile.spaces.forEach((space, i) => {
         const item = document.createElement('div');
@@ -53,14 +47,9 @@ async function initSidebar() {
 
         item.addEventListener('click', async () => {
             await window.FlitStorage.setActiveSpaceIndex(i);
-            FlitRouter.back(); // back to feed; feed's onResume reloads it
+            window.location.href = 'index.html';
         });
 
         list.appendChild(item);
     });
-}
-
-FlitRouter.register('sidebar', {
-    init:     initSidebar,
-    onResume: initSidebar,  // refresh when returning (e.g. after creating a space)
 });

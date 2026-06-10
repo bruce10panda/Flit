@@ -12,7 +12,7 @@ async function fetchFeed(url) {
     const attempts = [
         fetch(url),
         ...proxySources.map(p => fetch(p + encodeURIComponent(url)))
-    ].map(p => p.then(r => r.ok ? r : Promise.reject(new Error(`HTTP ${r.status}`))));
+    ];
 
     try {
         const response = await Promise.any(attempts);
@@ -96,9 +96,9 @@ function createPostElement(postData) {
         post.onclick = () => {
             if (openInReader) {
                 sessionStorage.setItem('currentPostData', JSON.stringify(postData));
-                FlitRouter.navigate('article', { url: postData.link });
+                window.location.href = `article.html?url=${encodeURIComponent(postData.link)}`;
             } else {
-                FlitRouter.navigate('browser', { url: postData.link });
+                window.location.href = `browser.html?url=${encodeURIComponent(postData.link)}`;
             }
         };
 
@@ -149,14 +149,8 @@ function renderPosts() {
     observer.observe(sentinel);
 }
 
-async function initFeed() {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!feedContainer) return;
-
-    // Reset state for re-init (space change)
-    allPosts = [];
-    currentOffset = 0;
-    if (observer) { observer.disconnect(); observer = null; }
-    sentinel = null;
 
     try {
         const profile = await loadAndApplyTheme();
@@ -167,7 +161,7 @@ async function initFeed() {
         const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
         const activeSpace = profile.spaces[activeIndex] || profile.spaces[0];
         if (activeSpace) {
-            document.querySelector('#page-feed h1').textContent = activeSpace.name;
+            document.querySelector('h1').textContent = activeSpace.name;
         }
 
         const feedUrls = activeSpace.feeds || [];
@@ -250,12 +244,4 @@ async function initFeed() {
         console.error("Initialization Error:", err);
         feedContainer.innerHTML = '<p class="feed-name">Error loading profile.</p>';
     }
-}
-
-// Register with router — onResume reloads feed when returning from sidebar
-FlitRouter.register('feed', {
-    onResume: initFeed,
 });
-
-// Run on startup
-document.addEventListener('DOMContentLoaded', initFeed);

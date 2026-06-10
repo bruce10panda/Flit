@@ -1,10 +1,24 @@
+const editIndex = new URLSearchParams(location.search).get('edit');
+const isEditMode = editIndex !== null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const profile = await loadAndApplyTheme();
+
+    if (isEditMode) {
+        document.getElementById('page-title').textContent = 'Edit a Space';
+        document.getElementById('create-btn-icon').textContent = 'check';
+        document.getElementById('create-btn-label').textContent = 'Save Changes';
+    }
+
+    await init(profile);
+});
+
+document.querySelector('#back-btn')?.addEventListener('click', () => history.back());
+
 // ── State ──────────────────────────────────────────────────────────────────
 
-let editIndex  = null;
-let isEditMode = false;
-
-let hue  = 236;
-let dotY = 0.4;
+let hue  = 236;   // 0-360
+let dotY = 0.4;   // 0 (top/lighter) → 1 (bottom/darker)
 let mode = 'dark';
 
 const canvas     = document.getElementById('color-canvas');
@@ -13,7 +27,6 @@ const btnShuffle = document.getElementById('btn-shuffle');
 const btnLight   = document.getElementById('btn-light');
 const btnDark    = document.getElementById('btn-dark');
 const btnMono    = document.getElementById('btn-mono');
-const emojiInput = document.getElementById('ns-emoji-input');
 
 // ── Colour math ────────────────────────────────────────────────────────────
 
@@ -129,7 +142,7 @@ document.addEventListener('touchmove',  e => { if (dragging) readCanvasPoint(e);
 document.addEventListener('mouseup',  () => { dragging = false; });
 document.addEventListener('touchend', () => { dragging = false; });
 
-// ── Mode buttons ───────────────────────────────────────────────────────────
+// ── Buttons ────────────────────────────────────────────────────────────────
 
 btnShuffle.addEventListener('click', () => {
     const startHue = hue;
@@ -149,11 +162,30 @@ btnShuffle.addEventListener('click', () => {
     requestAnimationFrame(step);
 });
 
-btnLight.addEventListener('click', () => { if (mode !== 'light') { mode = 'light'; drawCanvas(); update(); } });
-btnDark.addEventListener('click',  () => { if (mode !== 'dark')  { mode = 'dark';  drawCanvas(); update(); } });
-btnMono.addEventListener('click',  () => { if (mode !== 'mono')  { mode = 'mono';  drawCanvas(); update(); } });
+btnLight.addEventListener('click', () => {
+    if (mode === 'light') return;
+    mode = 'light';
+    drawCanvas();
+    update();
+});
 
-// ── Emoji input ────────────────────────────────────────────────────────────
+btnDark.addEventListener('click', () => {
+    if (mode === 'dark') return;
+    mode = 'dark';
+    drawCanvas();
+    update();
+});
+
+btnMono.addEventListener('click', () => {
+    if (mode === 'mono') return;
+    mode = 'mono';
+    drawCanvas();
+    update();
+});
+
+// ── Create / Save button ──────────────────────────────────────────────────
+
+const emojiInput = document.getElementById('ns-emoji-input');
 
 emojiInput?.addEventListener('input', () => {
     if (!emojiInput.value) return;
@@ -168,8 +200,6 @@ emojiInput?.addEventListener('input', () => {
 function getEmoji() {
     return emojiInput?.value.trim() || '🌐';
 }
-
-// ── Create / Save button ──────────────────────────────────────────────────
 
 document.getElementById('create-btn')?.addEventListener('click', async () => {
     const nameInput = document.querySelector('.ns-input');
@@ -195,25 +225,21 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
         } else {
             await window.FlitStorage.updateCustomSpace(idx - baseCount, { name, theme, emoji });
         }
+        history.back();
     } else {
-        await window.FlitStorage.addCustomSpace({ name, emoji, theme, feeds: [] });
+        await window.FlitStorage.addCustomSpace({
+            name,
+            emoji,
+            theme,
+            feeds: [],
+        });
+        window.location.href = 'sidebar.html';
     }
-
-    FlitRouter.back();
 });
 
-// ── Init (called each time the page is navigated to) ──────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────
 
-async function initNewSpace(p) {
-    editIndex  = p?.edit ?? null;
-    isEditMode = editIndex !== null;
-
-    // Update page UI for create vs edit mode
-    document.getElementById('page-title').textContent       = isEditMode ? 'Edit a Space'     : 'Add a Space';
-    document.getElementById('create-btn-icon').textContent  = isEditMode ? 'check'            : 'add_2';
-    document.getElementById('create-btn-label').textContent = isEditMode ? 'Save Changes'     : 'Create your Space';
-
-    const profile = await loadAndApplyTheme();
+async function init(profile) {
     let bg;
 
     if (isEditMode) {
@@ -225,8 +251,6 @@ async function initNewSpace(p) {
             bg = space.theme?.bg;
         }
     } else {
-        document.querySelector('.ns-input').value = '';
-        if (emojiInput) emojiInput.value = '';
         const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
         bg = profile?.spaces?.[activeIndex]?.theme?.bg;
     }
@@ -245,12 +269,8 @@ async function initNewSpace(p) {
                 dotY = 1 - Math.max(0, Math.min(1, (l - 78) / 14));
             }
         }
-    } else {
-        hue = 236; dotY = 0.4; mode = 'dark';
     }
 
     drawCanvas();
     update();
 }
-
-FlitRouter.register('new-space', { init: initNewSpace });
