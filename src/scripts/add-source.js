@@ -35,6 +35,7 @@ async function addFeedToStorage(feedUrl) {
             }
         }
     }
+    sessionStorage.removeItem('flit_posts_' + spaceIndex);
 }
 
 function showError(input) {

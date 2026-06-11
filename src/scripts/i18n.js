@@ -38,6 +38,7 @@ const TRANSLATIONS = {
         language:         'Language',
         edit_space:       'Edit Space',
         delete_sources:   'Delete Sources',
+        no_sources:       'No sources added.',
         // sidebar
         home:             'Home',
         add_feed:         'Add Feed',
@@ -83,6 +84,7 @@ const TRANSLATIONS = {
         language:         'Taal',
         edit_space:       'Space bewerken',
         delete_sources:   'Bronnen verwijderen',
+        no_sources:       'Geen bronnen toegevoegd.',
         // sidebar
         home:             'Home',
         add_feed:         'Feed toevoegen',

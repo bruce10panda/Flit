@@ -17,14 +17,14 @@ async function fetchFeed(url) {
 
     const attempts = allUrls.map((fetchUrl, i) =>
         fetch(fetchUrl, { signal: controllers[i].signal })
-            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return { r, i }; })
+            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
+            .then(text => { if (text.trimStart().startsWith('{"Error"')) throw new Error('proxy-error'); return { text, i }; })
     );
 
     try {
-        const { r, i } = await Promise.any(attempts);
+        const { text, i } = await Promise.any(attempts);
         clearTimeout(timeoutId);
         controllers.forEach((c, j) => { if (j !== i) c.abort(); });
-        const text = await r.text();
         return new DOMParser().parseFromString(text, 'application/xml');
     } catch (err) {
         clearTimeout(timeoutId);

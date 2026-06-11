@@ -1,0 +1,93 @@
+.ds-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.ds-empty {
+    font-size: 16px;
+    color: var(--theme-fg-64);
+    padding: 0 6px;
+}
+
+.ds-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 6px;
+}
+
+.ds-item-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ds-item-icon .material-symbols-rounded {
+    color: var(--theme-fg-64);
+    font-size: 20px;
+}
+
+.ds-item-icon--bluesky {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background-color: var(--theme-fg-64);
+    -webkit-mask-image: url('../assets/Bluesky_icon.svg');
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-image: url('../assets/Bluesky_icon.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.ds-item-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+    color: var(--theme-fg-64);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ds-delete-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: var(--theme-fg-64);
+    padding: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.ds-delete-btn:active {
+    opacity: 1;
+}
+
+.ds-delete-btn .material-symbols-rounded {
+    font-size: 20px;
+}
+
+.ds-item.removing {
+    animation: ds-fade-out 0.25s ease forwards;
+}
+
+@keyframes ds-fade-out {
+    to { opacity: 0; transform: translateX(12px); }
+}

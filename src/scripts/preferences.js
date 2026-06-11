@@ -18,7 +18,7 @@ function buildSpaceItem(space, spaceIndex) {
                         <p>${window.t('edit_space')}</p>
                         <span class="material-symbols-rounded">chevron_right</span>
                     </div>
-                    <div class="pref-sub-item">
+                    <div class="pref-sub-item" id="delete-sources-${spaceIndex}">
                         <p>${window.t('delete_sources')}</p>
                         <span class="material-symbols-rounded">chevron_right</span>
                     </div>
@@ -35,6 +35,10 @@ function buildSpaceItem(space, spaceIndex) {
 
     item.querySelector(`#edit-theme-${spaceIndex}`).addEventListener('click', () => {
         window.location.href = `new-space.html?edit=${spaceIndex}`;
+    });
+
+    item.querySelector(`#delete-sources-${spaceIndex}`).addEventListener('click', () => {
+        window.location.href = `delete-sources.html?space=${spaceIndex}`;
     });
 
     return item;

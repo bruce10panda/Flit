@@ -1,10 +1,17 @@
 const SCROLLBAR_HIDE_CSS = `<style>::-webkit-scrollbar{display:none!important}html,body{scrollbar-width:none;-ms-overflow-style:none}</style>`;
 
+function isProxyError(text) {
+    return text.trimStart().startsWith('{"Error"');
+}
+
 async function fetchPageHTML(url) {
-    const attempts = proxySources.map(proxy => fetch(proxy + encodeURIComponent(url)));
+    const attempts = proxySources.map(proxy =>
+        fetch(proxy + encodeURIComponent(url))
+            .then(r => r.text())
+            .then(text => { if (isProxyError(text)) throw new Error('proxy-error'); return text; })
+    );
     try {
-        const response = await Promise.any(attempts);
-        return await response.text();
+        return await Promise.any(attempts);
     } catch (err) {
         console.error('Browser: failed to fetch page', err);
         return null;
