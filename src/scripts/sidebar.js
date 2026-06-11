@@ -1,10 +1,10 @@
 document.querySelector('#close-sidebar-btn')?.addEventListener('click', () => {
-    window.location.href = 'index.html';
+    navigate('index.html');
 });
 
 document.querySelector('#preferences-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    window.location.href = 'preferences.html';
+    navigate('preferences.html');
 });
 
 const addBtn = document.querySelector('#add-btn');
@@ -18,8 +18,8 @@ addBtn?.querySelectorAll('.add-btn-row').forEach((row, i) => {
     row.addEventListener('click', (e) => {
         if (!addBtn.classList.contains('open')) return;
         e.stopPropagation();
-        if (i === 0) window.location.href = 'add-source.html';
-        if (i === 1) window.location.href = 'new-space.html';
+        if (i === 0) navigate('add-source.html');
+        if (i === 1) navigate('new-space.html');
     });
 });
 
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         item.addEventListener('click', async () => {
             await window.FlitStorage.setActiveSpaceIndex(i);
-            window.location.href = 'index.html';
+            navigate('index.html');
         });
 
         list.appendChild(item);

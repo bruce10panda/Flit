@@ -55,15 +55,8 @@ function goTo(index) {
         prev.classList.remove('exit-left');
     }, { once: true });
 
-    next.style.transform = 'translateX(100%)';
-    next.style.opacity = '0';
-
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            next.classList.add('active');
-            next.style.transform = '';
-            next.style.opacity = '';
-        });
+        next.classList.add('active');
     });
 
     current = index;
@@ -99,5 +92,5 @@ async function finish() {
         onboarding_done: true,
     });
 
-    window.location.href = 'index.html';
+    navigate('index.html');
 }

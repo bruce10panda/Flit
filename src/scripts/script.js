@@ -122,7 +122,7 @@ window.processArticleContent = processArticleContent;
 // ── Sidebar button ────────────────────────────────────────────────────────
 
 const sidebarBtn = document.querySelector('#sidebar-btn');
-if (sidebarBtn) sidebarBtn.addEventListener('click', () => window.location.href = 'sidebar.html');
+if (sidebarBtn) sidebarBtn.addEventListener('click', () => navigate('sidebar.html'));
 
 // ── Reload button ──────────────────────────────────────────────────────────
 

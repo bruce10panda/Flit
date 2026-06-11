@@ -105,9 +105,9 @@ function createPostElement(postData) {
         post.onclick = () => {
             if (openInReader) {
                 sessionStorage.setItem('currentPostData', JSON.stringify(postData));
-                window.location.href = `article.html?url=${encodeURIComponent(postData.link)}`;
+                navigate(`article.html?url=${encodeURIComponent(postData.link)}`);
             } else {
-                window.location.href = `browser.html?url=${encodeURIComponent(postData.link)}`;
+                navigate(`browser.html?url=${encodeURIComponent(postData.link)}`);
             }
         };
 

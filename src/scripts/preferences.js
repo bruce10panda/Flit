@@ -34,11 +34,11 @@ function buildSpaceItem(space, spaceIndex) {
     });
 
     item.querySelector(`#edit-theme-${spaceIndex}`).addEventListener('click', () => {
-        window.location.href = `new-space.html?edit=${spaceIndex}`;
+        navigate(`new-space.html?edit=${spaceIndex}`);
     });
 
     item.querySelector(`#delete-sources-${spaceIndex}`).addEventListener('click', () => {
-        window.location.href = `delete-sources.html?space=${spaceIndex}`;
+        navigate(`delete-sources.html?space=${spaceIndex}`);
     });
 
     return item;

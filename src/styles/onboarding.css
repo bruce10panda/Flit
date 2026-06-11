@@ -44,21 +44,17 @@ body {
     box-sizing: border-box;
     opacity: 0;
     pointer-events: none;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, opacity;
+    transition: opacity 0.35s ease;
+    will-change: opacity;
 }
 
 .ob-step.active {
     opacity: 1;
     pointer-events: all;
-    transform: translateX(0);
 }
 
 .ob-step.exit-left {
     opacity: 0;
-    transform: translateX(-60px);
 }
 
 /* ── Shared button ── */

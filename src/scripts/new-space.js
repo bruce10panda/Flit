@@ -233,7 +233,7 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
             theme,
             feeds: [],
         });
-        window.location.href = 'sidebar.html';
+        navigate('sidebar.html');
     }
 });
 
