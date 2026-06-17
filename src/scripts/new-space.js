@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profile = await loadAndApplyTheme();
 
     if (isEditMode) {
-        document.getElementById('page-title').textContent = window.t('edit_a_space_title');
+        document.getElementById('page-title').textContent = 'Edit a Space';
         document.getElementById('create-btn-icon').textContent = 'check';
-        document.getElementById('create-btn-label').textContent = window.t('save_changes');
+        document.getElementById('create-btn-label').textContent = 'Save Changes';
     }
 
     await init(profile);
@@ -185,34 +185,31 @@ btnMono.addEventListener('click', () => {
 
 // ── Create / Save button ──────────────────────────────────────────────────
 
-const emojiInput = document.getElementById('ns-emoji-input');
+const nsInput = document.getElementById('ns-input');
 
-emojiInput?.addEventListener('input', () => {
-    if (!emojiInput.value) return;
-    try {
-        const first = [...new Intl.Segmenter().segment(emojiInput.value)][0]?.segment || '';
-        emojiInput.value = first;
-    } catch {
-        emojiInput.value = [...emojiInput.value][0] || '';
-    }
-});
+function parseSpaceInput(value) {
+    const segments = [...new Intl.Segmenter().segment(value.trim())];
+    if (!segments.length) return null;
+    const first = segments[0].segment;
+    if (!/\p{Extended_Pictographic}/u.test(first)) return null;
+    const name = segments.slice(1).map(s => s.segment).join('').trim();
+    if (!name) return null;
+    return { emoji: first, name };
+}
 
-function getEmoji() {
-    return emojiInput?.value.trim() || '🌐';
+function showInputError(el) {
+    el.classList.add('error');
+    el.addEventListener('animationend', () => el.classList.remove('error'), { once: true });
 }
 
 document.getElementById('create-btn')?.addEventListener('click', async () => {
-    const nameInput = document.querySelector('.ns-input');
-    const name = nameInput?.value.trim();
-    if (!name) {
-        nameInput?.classList.add('error');
-        nameInput?.addEventListener('animationend', () => nameInput.classList.remove('error'), { once: true });
-        return;
-    }
+    const parsed = parseSpaceInput(nsInput?.value || '');
 
+    if (!parsed) { showInputError(nsInput); return; }
+
+    const { emoji, name } = parsed;
     const { s, l } = getColorValues();
     const theme = { bg: hslToHex(hue, s, l), fg: computeFg(hue, s, l) };
-    const emoji = getEmoji();
 
     if (isEditMode) {
         const idx = parseInt(editIndex, 10);
@@ -227,12 +224,7 @@ document.getElementById('create-btn')?.addEventListener('click', async () => {
         }
         history.back();
     } else {
-        await window.FlitStorage.addCustomSpace({
-            name,
-            emoji,
-            theme,
-            feeds: [],
-        });
+        await window.FlitStorage.addCustomSpace({ name, emoji, theme, feeds: [] });
         navigate('sidebar.html');
     }
 });
@@ -246,8 +238,7 @@ async function init(profile) {
         const idx = parseInt(editIndex, 10);
         const space = profile?.spaces?.[idx];
         if (space) {
-            document.querySelector('.ns-input').value = space.name || '';
-            if (emojiInput) emojiInput.value = space.emoji || '🌐';
+            if (nsInput) nsInput.value = [space.emoji, space.name].filter(Boolean).join(' ');
             bg = space.theme?.bg;
         }
     } else {

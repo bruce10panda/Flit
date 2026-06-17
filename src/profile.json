@@ -1,19 +1,28 @@
 {
   "spaces": [
     {
-      "name": "Default space",
+      "name": "Tech",
+      "emoji": "💻",
+      "theme": {
+        "bg": "#151530",
+        "fg": "#d1c8da"
+      },
+      "feeds": [
+        "https://feeds.arstechnica.com/arstechnica/index",
+        "https://www.theverge.com/rss/index.xml",
+        "http://9to5mac.com/rss"
+      ]
+    },
+    {
+      "name": "World",
       "emoji": "🌍",
       "theme": {
         "bg": "#151530",
         "fg": "#d1c8da"
       },
       "feeds": [
-        "@flitnews.bsky.social"
+        "https://feeds.bbci.co.uk/news/world/rss.xml"
       ]
     }
-  ],
-  "preferences": {
-    "experimental_reader": true,
-    "open_in_reader": true
-  }
+  ]
 }

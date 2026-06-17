@@ -16,40 +16,8 @@
 
 /* ── Name row ──────────────────────────────────────────────────────────── */
 
-.ns-name-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.ns-emoji-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 22px;
-    flex-shrink: 0;
-    background: var(--theme-fg-5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.ns-emoji-input {
-    border: none;
-    background: transparent;
-    font-size: 22px;
-    text-align: center;
-    width: 44px;
-    outline: none;
-    cursor: pointer;
-    caret-color: transparent;
-    padding: 0;
-}
-
 .ns-input-pill {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
     height: 44px;
     border-radius: 59px;
     background: var(--theme-fg-5);

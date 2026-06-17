@@ -7,8 +7,6 @@ let allPosts = [];
 let currentOffset = 0;
 let sentinel = null;
 let observer = null;
-let openInReader = true;
-
 
 async function fetchFeed(url) {
     const allUrls = [url, ...proxySources.map(p => p + encodeURIComponent(url))];
@@ -33,21 +31,6 @@ async function fetchFeed(url) {
     }
 }
 
-async function fetchBlueskyFeed(handle) {
-    const resolved = handle.includes('.') ? handle : `${handle}.bsky.social`;
-
-    const [feedResult, profileResult] = await Promise.allSettled([
-        fetchFeed(`https://bsky.app/profile/${resolved}/rss`),
-        fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${resolved}`)
-            .then(r => r.json()),
-    ]);
-
-    return {
-        xmlDoc: feedResult.status === 'fulfilled' ? feedResult.value : null,
-        avatar: profileResult.status === 'fulfilled' ? profileResult.value?.avatar ?? null : null,
-    };
-}
-
 function extractImage(item) {
     const media = item.getElementsByTagNameNS('*', 'thumbnail')[0] ||
                   item.getElementsByTagNameNS('*', 'content')[0];
@@ -65,66 +48,24 @@ function createPostElement(postData) {
     const post = document.createElement('div');
     post.className = 'post overlay';
 
-    if (postData.isBluesky) {
-        post.classList.add('bsky-post');
-        post.onclick = () => {
-            if (window.__TAURI__) {
-                window.__TAURI__.opener.openUrl(postData.link);
-            } else {
-                window.open(postData.link, '_blank');
-            }
-        };
+    post.onclick = () => {
+        sessionStorage.setItem('currentPostData', JSON.stringify(postData));
+        navigate(`article.html?url=${encodeURIComponent(postData.link)}`);
+    };
 
-        post.innerHTML = `
-            <div class="source">
-                <img src="${postData.feedImage || 'https://www.google.com/s2/favicons?sz=64&domain=bsky.app'}" alt="Avatar" loading="lazy" onerror="this.src='https://www.google.com/s2/favicons?sz=64&domain=bsky.app'">
-                <p class="source-name">${postData.feedTitle}</p>
-            </div>
-            <p class="bsky-body">${postData.title}</p>
-            ${postData.externalLink ? `<a class="post-link overlay" href="${postData.externalLink}"><p>link</p></a>` : ''}
-            <div class="author-time">
-                <p class="time">${getTimeAgo(postData.date)}</p>
-            </div>
-        `;
-
-        if (postData.externalLink) {
-            const linkEl = post.querySelector('.post-link');
-            if (linkEl) {
-                linkEl.onclick = (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (window.__TAURI__) {
-                        window.__TAURI__.opener.openUrl(postData.externalLink);
-                    } else {
-                        window.open(postData.externalLink, '_blank');
-                    }
-                };
-            }
-        }
-    } else {
-        post.onclick = () => {
-            if (openInReader) {
-                sessionStorage.setItem('currentPostData', JSON.stringify(postData));
-                navigate(`article.html?url=${encodeURIComponent(postData.link)}`);
-            } else {
-                navigate(`browser.html?url=${encodeURIComponent(postData.link)}`);
-            }
-        };
-
-        post.innerHTML = `
-            <div class="source">
-                <img src="https://www.google.com/s2/favicons?sz=64&domain=${postData.link}" alt="Source Icon" loading="lazy">
-                <p class="source-name">${postData.feedTitle}</p>
-            </div>
-            ${postData.image ? `<img class="post-image" src="${postData.image}" alt="Post Image" loading="lazy" onerror="this.remove()">` : ''}
-            <h2 class="title">${postData.title}</h2>
-            <p class="description">${postData.description}</p>
-            <div class="author-time">
-                <p class="author">${window.t('min_read', { n: postData.readTime })}</p>
-                <p class="time">${getTimeAgo(postData.date)}</p>
-            </div>
-        `;
-    }
+    post.innerHTML = `
+        <div class="source">
+            <img src="https://www.google.com/s2/favicons?sz=64&domain=${postData.link}" alt="Source Icon" loading="lazy">
+            <p class="source-name">${postData.feedTitle}</p>
+        </div>
+        ${postData.image ? `<img class="post-image" src="${postData.image}" alt="Post Image" loading="lazy" onerror="this.remove()">` : ''}
+        <h2 class="title">${postData.title}</h2>
+        <p class="description">${postData.description}</p>
+        <div class="author-time">
+            <p class="author">${postData.readTime} min read</p>
+            <p class="time">${getTimeAgo(postData.date)}</p>
+        </div>
+    `;
 
     return post;
 }
@@ -154,9 +95,7 @@ function schedulePreload() {
     const ect = navigator.connection?.effectiveType;
     if (ect === 'slow-2g' || ect === '2g') return;
 
-    const upcoming = allPosts
-        .slice(currentOffset, currentOffset + PAGE_SIZE)
-        .filter(p => !p.isBluesky && p.link);
+    const upcoming = allPosts.slice(currentOffset, currentOffset + PAGE_SIZE).filter(p => p.link);
 
     requestIdleCallback(async () => {
         for (const post of upcoming) {
@@ -170,7 +109,7 @@ function schedulePreload() {
                     const html = await r.text();
                     try { sessionStorage.setItem(cacheKey, html); } catch {}
                 }
-            } catch {} // Silently ignore preload failures
+            } catch {}
         }
     }, { timeout: 5000 });
 }
@@ -193,7 +132,7 @@ function appendBatch() {
 }
 
 function renderPosts() {
-    feedContainer.innerHTML = `<p class="feed-name">${window.t('recent_updates')}</p>`;
+    feedContainer.innerHTML = `<p class="feed-name">Recent Updates</p>`;
     currentOffset = 0;
 
     sentinel = document.createElement('div');
@@ -214,8 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const profile = await loadAndApplyTheme();
         if (!profile) throw new Error('Could not load profile.json');
 
-        openInReader = profile.preferences?.open_in_reader !== false;
-
         const activeIndex = await window.FlitStorage.getActiveSpaceIndex();
         const activeSpace = profile.spaces[activeIndex] || profile.spaces[0];
         if (activeSpace) {
@@ -231,32 +168,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const feedUrls = activeSpace.feeds || [];
-        feedContainer.innerHTML = `<p class="feed-name">${window.t('loading', { name: activeSpace.name })}</p>`;
+        feedContainer.innerHTML = `<p class="feed-name">Loading ${activeSpace.name}...</p>`;
 
         const feedPromises = feedUrls.map(async (url) => {
-            const isBluesky = url.startsWith('@') || /bsky\.app/i.test(url);
-
-            let xmlDoc;
-            let blueskyAvatar = null;
-            if (url.startsWith('@')) {
-                const result = await fetchBlueskyFeed(url.slice(1));
-                xmlDoc = result.xmlDoc;
-                blueskyAvatar = result.avatar;
-            } else {
-                xmlDoc = await fetchFeed(url);
-            }
+            const xmlDoc = await fetchFeed(url);
             if (!xmlDoc) return;
 
             const feedTitle = xmlDoc.querySelector('channel > title, feed > title')?.textContent?.trim() || 'Unknown Source';
-            const feedImage = isBluesky
-                ? blueskyAvatar
-                : (xmlDoc.querySelector('channel > image > url, feed > logo')?.textContent?.trim() ||
-                   xmlDoc.querySelector('channel > image')?.getAttribute('url') || null);
 
             Array.from(xmlDoc.querySelectorAll('item, entry')).forEach(item => {
                 const pubDateStr = item.querySelector('pubDate, published, updated')?.textContent?.trim();
                 const parsedDate = pubDateStr ? new Date(pubDateStr) : null;
                 const postDate = parsedDate && !isNaN(parsedDate) ? parsedDate : new Date(0);
+
                 const authorEl = item.querySelector('dc\\:creator, creator, author > name, author');
                 let authorName = authorEl ? authorEl.textContent.trim() : '';
 
@@ -274,25 +198,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const readTime = Math.max(1, Math.round(wordCount / 220));
 
                 const link = item.querySelector('link')?.getAttribute('href') || item.querySelector('link')?.textContent?.trim();
-                const rawTitle = item.querySelector('title')?.textContent?.trim();
-                const title = isBluesky ? rawDesc : (rawTitle || 'Untitled');
-
-                const urlMatch = isBluesky ? rawDesc.match(/https?:\/\/[^\s)>\]"]+/) : null;
-                const externalLink = urlMatch ? urlMatch[0].replace(/[.,;!?]+$/, '') : null;
-                const displayTitle = externalLink ? title.replace(urlMatch[0], '').trim() : title;
 
                 allPosts.push({
                     feedTitle,
-                    feedImage,
-                    title: displayTitle,
+                    title: item.querySelector('title')?.textContent?.trim() || 'Untitled',
                     link,
                     author: finalAuthor,
                     description: rawDesc.slice(0, 150) + (rawDesc.length > 150 ? '...' : ''),
                     image: extractImage(item),
                     date: postDate,
                     readTime,
-                    isBluesky,
-                    externalLink,
                 });
             });
         });
@@ -304,11 +219,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             setCachedPosts(cacheKey, allPosts);
             renderPosts();
         } else {
-            feedContainer.innerHTML = `<p class="feed-name">${window.t('no_posts')}</p>`;
+            feedContainer.innerHTML = `<p class="feed-name">No posts found.</p>`;
         }
 
     } catch (err) {
-        console.error("Initialization Error:", err);
-        feedContainer.innerHTML = `<p class="feed-name">${window.t('error_loading')}</p>`;
+        console.error('Initialization Error:', err);
+        feedContainer.innerHTML = `<p class="feed-name">Error loading profile.</p>`;
     }
 });

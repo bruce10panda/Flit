@@ -58,24 +58,3 @@
 .reload {
     cursor: pointer;
 }
-
-.post-link {
-    display: inline-flex;
-    align-self: flex-start;
-    padding: 3px 10px;
-    border-radius: 70px;
-    overflow: hidden;
-    text-decoration: none;
-    color: var(--theme-fg-64);
-}
-
-.bsky-body {
-    color: var(--theme-fg-64) !important;
-    font-size: 15px;
-    line-height: 1.55;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 8;
-    line-clamp: 8;
-    overflow: hidden;
-}

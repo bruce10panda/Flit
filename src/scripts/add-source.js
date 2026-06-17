@@ -48,14 +48,9 @@ function showSuccess(row) {
     setTimeout(() => history.back(), 700);
 }
 
-const sections = document.querySelectorAll('.source-section');
-const rssSection = sections[0];
-const bskySection = sections[1];
-
-// ── RSS ────────────────────────────────────────────────────────────────────
-
-const rssInput = rssSection?.querySelector('.source-input');
-const rssBtn   = rssSection?.querySelector('.source-add-btn');
+const rssSection = document.querySelector('.source-section');
+const rssInput   = rssSection?.querySelector('.source-input');
+const rssBtn     = rssSection?.querySelector('.source-add-btn');
 
 async function submitRss() {
     const url = rssInput.value.trim();
@@ -66,20 +61,3 @@ async function submitRss() {
 
 rssBtn?.addEventListener('click', submitRss);
 rssInput?.addEventListener('keydown', e => { if (e.key === 'Enter') submitRss(); });
-
-// ── Bluesky ────────────────────────────────────────────────────────────────
-
-const bskyInput = bskySection?.querySelector('.source-input');
-const bskyBtn   = bskySection?.querySelector('.source-add-btn');
-
-async function submitBsky() {
-    let handle = bskyInput.value.trim();
-    if (!handle) { showError(bskyInput); return; }
-    if (!handle.startsWith('@')) handle = '@' + handle;
-    if (!handle.slice(1).includes('.')) { showError(bskyInput); return; }
-    await addFeedToStorage(handle);
-    showSuccess(bskySection.querySelector('.source-input-row'));
-}
-
-bskyBtn?.addEventListener('click', submitBsky);
-bskyInput?.addEventListener('keydown', e => { if (e.key === 'Enter') submitBsky(); });

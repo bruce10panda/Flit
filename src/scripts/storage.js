@@ -1,12 +1,11 @@
 // Persistent storage for Flit.
-// When running inside Tauri, data is written to the app's data directory
-// (survives app restarts on Android). Falls back to localStorage in a browser.
+// When running inside Tauri, data is written to the app's data directory.
+// Falls back to localStorage in a browser.
 
 const DEFAULT_DATA = {
     activeSpaceIndex: 0,
-    spaceOverrides: [],  // indexed by profile.json space index: { extraFeeds[], theme }
+    spaceOverrides: [],  // indexed by profile.json space index: { extraFeeds[], theme, name, emoji }
     customSpaces: [],    // user-created spaces: { name, emoji, theme, feeds[] }
-    preferences: {},     // user preference overrides: { open_in_reader, experimental_reader, … }
 };
 
 let _cache = null;
@@ -91,6 +90,27 @@ async function updateSpaceOverride(profileIndex, overrides) {
     await _save();
 }
 
+async function removeExtraFeed(spaceIndex, feedUrl) {
+    const data = await getUserData();
+    const override = data.spaceOverrides?.[spaceIndex];
+    if (!override) return;
+    override.extraFeeds = (override.extraFeeds || []).filter(f => f !== feedUrl);
+    await _save();
+}
+
+async function excludeBaseFeed(spaceIndex, feedUrl) {
+    const data = await getUserData();
+    while (data.spaceOverrides.length <= spaceIndex) {
+        data.spaceOverrides.push({ extraFeeds: [], theme: null });
+    }
+    const override = data.spaceOverrides[spaceIndex];
+    override.excludedFeeds = override.excludedFeeds || [];
+    if (!override.excludedFeeds.includes(feedUrl)) {
+        override.excludedFeeds.push(feedUrl);
+        await _save();
+    }
+}
+
 async function updateCustomSpace(customIndex, space) {
     const data = await getUserData();
     if (customIndex >= 0 && customIndex < data.customSpaces.length) {
@@ -99,20 +119,15 @@ async function updateCustomSpace(customIndex, space) {
     }
 }
 
-async function updatePreferences(prefs) {
-    const data = await getUserData();
-    data.preferences = { ...data.preferences, ...prefs };
-    await _save();
-}
-
 window.FlitStorage = {
     getUserData,
     getActiveSpaceIndex,
     setActiveSpaceIndex,
     getExtraFeeds,
     addExtraFeed,
+    removeExtraFeed,
+    excludeBaseFeed,
     addCustomSpace,
     updateSpaceOverride,
     updateCustomSpace,
-    updatePreferences,
 };

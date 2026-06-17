@@ -14,11 +14,10 @@ function getTimeAgo(dateStr) {
     const seconds = Math.floor((new Date() - date) / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(seconds / 3600);
-    const _t = window.t || ((k) => k);
-    if (minutes < 1) return _t('just_now');
+    if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}${_t('hr_suffix')}`;
-    return `${Math.floor(hours / 24)}${_t('day_suffix')}`;
+    if (hours < 24) return `${hours}H`;
+    return `${Math.floor(hours / 24)}D`;
 }
 
 // ── Theme ──────────────────────────────────────────────────────────────────
@@ -40,7 +39,7 @@ const applyProfileTheme = (theme) => {
 };
 
 // Fetches profile.json, merges saved user data, applies the active space's
-// theme, and returns the full profile so callers can read feeds, preferences, etc.
+// theme, and returns the full profile so callers can read feeds.
 async function loadAndApplyTheme() {
     try {
         const res = await fetch('profile.json');
@@ -49,22 +48,17 @@ async function loadAndApplyTheme() {
         const userData = await window.FlitStorage.getUserData();
         const activeIndex = userData.activeSpaceIndex || 0;
 
-        // Merge user-added feeds and theme overrides per space
         profile.spaces?.forEach((space, i) => {
             const override = userData.spaceOverrides?.[i] || {};
+            const excluded = new Set(override.excludedFeeds || []);
+            const base  = (space.feeds || []).filter(f => !excluded.has(f));
             const extra = override.extraFeeds || [];
-            if (extra.length) space.feeds = [...(space.feeds || []), ...extra];
-            if (override.theme) space.theme = override.theme;
-            if (override.name) space.name = override.name;
-            if (override.emoji) space.emoji = override.emoji;
+            space.feeds = [...base, ...extra];
+            if (override.theme)  space.theme = override.theme;
+            if (override.name)   space.name  = override.name;
+            if (override.emoji)  space.emoji = override.emoji;
         });
 
-        // Merge user preference overrides
-        if (userData.preferences && Object.keys(userData.preferences).length) {
-            profile.preferences = { ...profile.preferences, ...userData.preferences };
-        }
-
-        // Append user-created spaces
         if (userData.customSpaces?.length) {
             profile.spaces = [...(profile.spaces || []), ...userData.customSpaces];
         }
@@ -109,14 +103,12 @@ const processArticleContent = (container) => {
             return;
         }
 
-        // 1–4 word paragraphs with no sentence-ending punctuation are treated as labels/captions
         if (wordCount >= 1 && wordCount <= 4 && !/[.!?]$/.test(text)) {
             p.setAttribute('data-label', '');
         }
     });
 };
 
-// Exposed so article-reader.js can call it after injecting content
 window.processArticleContent = processArticleContent;
 
 // ── Sidebar button ────────────────────────────────────────────────────────

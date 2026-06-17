@@ -69,7 +69,7 @@ async function fetchArticleHTML(url) {
         return await r.text();
     } catch (err) {
         clearTimeout(timeoutId);
-        console.error("Failed to fetch article content:", err);
+        console.error('Failed to fetch article content:', err);
         return null;
     }
 }
@@ -137,14 +137,7 @@ function stripBoilerplate(container) {
 }
 
 async function loadArticle() {
-    let experimentalReaderEnabled = false;
-
-    try {
-        const profile = await loadAndApplyTheme();
-        experimentalReaderEnabled = profile?.preferences?.experimental_reader || false;
-    } catch (e) {
-        console.error("Reader: Profile fetch failed", e);
-    }
+    await loadAndApplyTheme();
 
     const articleUrl = new URLSearchParams(window.location.search).get('url');
     const savedData = JSON.parse(sessionStorage.getItem('currentPostData'));
@@ -152,11 +145,11 @@ async function loadArticle() {
     if (!articleUrl) return;
 
     const postContainer = document.querySelector('.post');
-    const titleEl       = document.querySelector('.title');
-    const sourceNameEl  = document.querySelector('.source-name');
-    const sourceImgEl   = document.querySelector('.source-info img');
-    const authorEl      = document.querySelector('.author');
-    const timeEl        = document.querySelector('.time');
+    const titleEl      = document.querySelector('.title');
+    const sourceNameEl = document.querySelector('.source-name');
+    const sourceImgEl  = document.querySelector('.source-info img');
+    const authorEl     = document.querySelector('.author');
+    const timeEl       = document.querySelector('.time');
 
     document.querySelector('.post-image')?.remove();
 
@@ -173,7 +166,7 @@ async function loadArticle() {
         if (actionBtn) {
             try {
                 const domain = new URL(articleUrl).hostname.replace('www.', '');
-                if (btnText) btnText.textContent = window.t('open_on', { domain });
+                if (btnText) btnText.textContent = `Open on ${domain}`;
                 actionBtn.onclick = () => {
                     if (window.__TAURI__) {
                         window.__TAURI__.opener.openUrl(articleUrl);
@@ -181,8 +174,8 @@ async function loadArticle() {
                         window.open(articleUrl, '_blank');
                     }
                 };
-            } catch (e) {
-                if (btnText) btnText.textContent = window.t('open_source');
+            } catch {
+                if (btnText) btnText.textContent = 'Open Original Source';
             }
         }
 
@@ -193,7 +186,7 @@ async function loadArticle() {
             titleEl.parentNode.insertBefore(firstImg, titleEl);
         }
     } else {
-        titleEl.textContent = window.t('loading_article');
+        titleEl.textContent = 'Loading...';
     }
 
     const html = await fetchArticleHTML(articleUrl);
@@ -219,7 +212,7 @@ async function loadArticle() {
                     return;
                 }
 
-                if (experimentalReaderEnabled && isBlockedImage(img)) {
+                if (isBlockedImage(img)) {
                     img.remove();
                     return;
                 }
@@ -228,7 +221,7 @@ async function loadArticle() {
                 img.alt = img.alt || 'Article image';
             });
 
-            if (experimentalReaderEnabled) stripBoilerplate(tempDiv);
+            stripBoilerplate(tempDiv);
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'article-content';
